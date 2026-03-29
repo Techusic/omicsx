@@ -130,6 +130,16 @@ impl ScoringMatrix {
         self.matrix_type
     }
 
+    /// Get scores as a reference (for bridge conversions)
+    pub fn raw_scores(&self) -> &Vec<Vec<i32>> {
+        &self.scores
+    }
+
+    /// Get matrix size
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
     /// BLOSUM62 scoring matrix (most commonly used)
     fn blosum62_data() -> Vec<Vec<i32>> {
         vec![

@@ -34,6 +34,7 @@ pub mod phylogeny_parsimony;
 pub mod gpu_jit_compiler;
 pub mod cli_file_io;
 pub mod phylogeny_likelihood;
+pub mod st_jude_bridge;
 
 // Import and re-export specific items to avoid glob conflicts
 pub use formats::{BlastJson, BlastTabular, BlastXml, FormatError, Gff3Record};
@@ -55,4 +56,8 @@ pub use phylogeny_parsimony::{CharState, ParsimonytreeBuilder, ParsimonyStateSet
 pub use gpu_jit_compiler::{CompiledKernel, GpuJitCompiler, JitOptions, KernelTemplates};
 pub use cli_file_io::{BatchProcessor, FileFormat, SeqFileReader, SeqFileWriter, SeqRecord};
 pub use phylogeny_likelihood::{LikelihoodTreeBuilder, SubstitutionModel, GTR, Kimura2P, JukesCantor};
+pub use st_jude_bridge::{
+    BridgeConfig, ParsimonyState, SequenceType, StJudeAlignment, StJudeAminoAcid, StJudeBridge,
+    StJudeScoringMatrix, StJudeSequence,
+};
 

@@ -4,7 +4,7 @@
 
 ![Rust](https://img.shields.io/badge/rust-1.94+-orange.svg?style=flat-square&logo=rust)
 ![License](https://img.shields.io/badge/license-MIT%2FCommercial-blue.svg?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-213%2F213-brightgreen.svg?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-230%2F230-brightgreen.svg?style=flat-square)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg?style=flat-square)
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg?style=flat-square)
 ![Performance](https://img.shields.io/badge/speedup-8--15x-orange.svg?style=flat-square)
@@ -190,7 +190,9 @@ let result_data = pool.copy_from_gpu(handle, 100000)?;
 - ✅ **Batch Processing** - Multi-sequence parallelization
 - ✅ **Tiling Algorithm** - Handles sequences > GPU memory
 - ✅ **Intelligent Dispatch** - CPU/GPU selection based on workload size
-- ✅ **NVRTC Compilation** - Just-in-time kernel generation
+- ✅ **NVRTC JIT Compilation** - Runtime kernel code generation with -O0 to -O3 optimization
+- ✅ **Kernel Caching** - Hash-based deduplication for frequently used kernels
+- ✅ **Template Library** - Pre-optimized Smith-Waterman and Needleman-Wunsch kernels
 - ✅ **Multi-GPU Support** - Automatic load balancing
 
 **Build with GPU Support**:
@@ -271,6 +273,75 @@ omics-x validate --file input.fasta --stats
 - ✅ Error handling with helpful messages
 
 **Tests**: Custom integration tests for each subcommand
+
+---
+
+### ✅ Phase 6: St. Jude Ecosystem Integration
+**Status**: Complete (v0.8.1+)
+
+Seamless interoperability with St. Jude Children's Research Hospital omics platform for pediatric cancer research:
+
+```rust
+use omics_simd::futures::st_jude_bridge::{BridgeConfig, StJudeBridge};
+use omics_simd::protein::Protein;
+
+// Configure bridge for clinical workflows
+let config = BridgeConfig {
+    include_coordinates: true,
+    include_clinical: true,
+    default_source_db: Some("ClinVar".to_string()),
+    default_taxonomy_id: Some(9606), // Homo sapiens
+    validate_sequences: true,
+};
+
+let bridge = StJudeBridge::new(config);
+
+// Convert tumor suppressor sequences
+let protein = Protein::from_string("MDLSALRVEEVQNVINAMQKIL")?
+    .with_id("BRCA1_HUMAN".to_string())
+    .with_description("Breast cancer susceptibility protein 1".to_string());
+
+// Export to St. Jude clinical format
+let st_jude_seq = bridge.to_st_jude_sequence(&protein)?;
+
+// Add clinical metadata
+let mut clinical_seq = st_jude_seq;
+clinical_seq.add_clinical_flag("pathogenic".to_string());
+clinical_seq.add_clinical_flag("loss-of-function".to_string());
+clinical_seq.metadata.insert("disease".to_string(), "Hereditary Breast Cancer".to_string());
+
+// Send to St. Jude pipeline for pediatric cancer analysis
+println!("Ready for analysis: {}", clinical_seq.id);
+```
+
+**St. Jude Bridge Capabilities**:
+- ✅ **Bidirectional Type Conversion** - OMICS-SIMD ↔ St. Jude formats
+- ✅ **Clinical Metadata** - Pathogenicity flags, disease annotations
+- ✅ **Database Integration** - ClinVar, COSMIC, dbSNP support
+- ✅ **Genomic Coordinates** - Position tracking for variants
+- ✅ **Taxonomy Management** - Species/organism information with NCBI IDs
+- ✅ **Alignment Export** - E-values, bit scores, clinical interpretation
+- ✅ **Batch Processing** - Process multiple sequences for studies
+- ✅ **Type Safety** - All conversions return `Result<T>`
+
+**Central Types**:
+- `StJudeSequence` - Sequence with clinical metadata
+- `StJudeAlignment` - Alignment with E-values and interpretation
+- `StJueAminoAcid` - NCBI-compatible amino acid encoding
+- `BridgeConfig` - Configurable conversion behavior
+
+**Clinical Applications**:
+- Pediatric cancer genomics workflow integration
+- Real-time molecular diagnostics support
+- Multi-center research study coordination
+- Variant annotation with clinical evidence
+- Drug sensitivity prediction pipelines
+
+**Documentation**: See [ST_JUDE_BRIDGE.md](ST_JUDE_BRIDGE.md) for complete integration guide
+
+**Example**: Run `cargo run --example st_jude_integration --release` to see bridge in action
+
+**Tests**: 12 comprehensive tests covering all bridge functionality
 
 ---
 
@@ -526,6 +597,7 @@ omics-x phylogeny --alignment aligned.fasta --method ml --bootstrap 100
 
 ### Core Documentation
 - [README.md](README.md) - This file (overview and quick start)
+- [ST_JUDE_BRIDGE.md](ST_JUDE_BRIDGE.md) - St. Jude ecosystem integration guide
 - [GPU.md](GPU.md) - GPU acceleration setup and deployment
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Development contribution guide
 - [DEVELOPMENT.md](DEVELOPMENT.md) - Developer workflow and architecture
@@ -538,8 +610,7 @@ omics-x phylogeny --alignment aligned.fasta --method ml --bootstrap 100
 
 ### Code Examples
 - [examples/basic_alignment.rs](examples/basic_alignment.rs) - Simple alignment usage
-- [examples/gpu_alignment.rs](examples/gpu_alignment.rs) - GPU acceleration example
-- [examples/batch_processing.rs](examples/batch_processing.rs) - Parallel batch alignment
+- [examples/gpu_alignment.rs](examples/gpu_alignment.rs) - GPU acceleration example- [examples/st_jude_integration.rs](examples/st_jude_integration.rs) - St. Jude ecosystem bridge- [examples/batch_processing.rs](examples/batch_processing.rs) - Parallel batch alignment
 - [examples/phylogenetic_analysis.rs](examples/phylogenetic_analysis.rs) - Tree construction
 - [examples/hmm_searching.rs](examples/hmm_searching.rs) - PFAM/HMM database search
 
@@ -575,6 +646,46 @@ cargo bench --bench alignment_benchmarks
 - ✅ **100% type safety** - no unchecked casts
 - ✅ **Zero unsafe code** in new algorithms (GPU layer only where necessary)
 - ✅ **Cross-platform** validation (x86-64, ARM64)
+
+---
+
+## 📁 Repository Structure & File Management
+
+### Backup Files and Archive Strategy
+
+The repository maintains archived versions of original implementations for reference and regression testing:
+
+| Original | Backup File | Purpose | Gitignore Pattern |
+|----------|-------------|---------|-------------------|
+| `src/futures/phylogeny_likelihood.rs` | `phylogeny_likelihood_original.rs` | Pre-NNI/SPR scalar implementation | `src/futures/*_original.rs` |
+| `src/futures/msa_profile_alignment.rs` | `msa_profile_alignment_original.rs` | Pre-consolidation profile pipeline | `src/futures/*_original.rs` |
+| Other alignment modules | `*_old.rs` files | Previous SIMD kernel variants | `src/alignment/*_old.rs` |
+
+### Git Ignore Configuration
+
+Backup files and temporary staging files are excluded from git to keep the repository clean:
+
+```gitignore
+# Enhanced implementation backups (Phase 3)
+src/futures/*_original.rs
+src/alignment/*_old.rs
+src/futures/*_enhanced.rs
+src/alignment/*_enhanced.rs
+```
+
+**Benefits**:
+- ✅ Source code preserved locally for regression testing
+- ✅ Keep git history clean without bloating commits
+- ✅ Support quick rollback to previous implementations
+- ✅ Archive strategy enables feature validation before deletion
+
+### Documentation Files
+
+Key documentation organized by phase:
+- **[ADVANCED_IMPLEMENTATION_SUMMARY.md](ADVANCED_IMPLEMENTATION_SUMMARY.md)** - Complete technical architecture (all phases)
+- **[PROJECT_COMPLETION_REPORT.md](PROJECT_COMPLETION_REPORT.md)** - Phase statistics and metrics
+- **[PHASE3_ENHANCEMENT_COMPLETION.md](PHASE3_ENHANCEMENT_COMPLETION.md)** - Phase 3 enhancements (topology search, MSA consolidation)
+- **[PHASE3_FINAL_COMPLETION.md](PHASE3_FINAL_COMPLETION.md)** - Build status and backup file inventory
 
 ---
 

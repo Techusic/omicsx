@@ -130,6 +130,39 @@ cargo fmt --check
 5. Squash related commits
 6. Write clear PR description
 
+### File Management Before Submission
+
+When implementing major enhancements to existing modules:
+
+- **Archive originals**: Keep backup copies of modified files with `_original.rs` suffix (local only, not committed)
+- **Test against baselines**: Compare enhanced version against original for regression
+- **Update .gitignore**: Add patterns for backup files (`src/module/*_original.rs`, etc.)
+- **Document changes**: Reference `DEVELOPMENT.md` section on backup files in commit message
+
+Example workflow:
+```bash
+# Before modifying phylogeny_likelihood.rs
+cp src/futures/phylogeny_likelihood.rs src/futures/phylogeny_likelihood_original.rs
+
+# ... implement enhancements ...
+
+# Verify against original (test both)
+cargo test --lib phylogeny_likelihood
+
+# Ensure backup won't be committed (check .gitignore)
+git check-ignore src/futures/phylogeny_likelihood_original.rs
+
+# Commit only the enhanced version
+git add src/futures/phylogeny_likelihood.rs
+git commit -m "feat(phylogeny): add NNI/SPR topology optimization (backup: phylogeny_likelihood_original.rs)"
+```
+
+**Benefits**:
+- ✅ Easy regression testing and comparison
+- ✅ Keep git history clean without bloating commits
+- ✅ Support quick rollback if issues arise
+- ✅ Preserve architectural decisions for documentation
+
 ## Architecture
 
 ```

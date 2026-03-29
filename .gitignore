@@ -38,6 +38,12 @@ test_output.txt
 *.orig
 *~
 
+# Enhanced implementation backups (Phase 3)
+src/futures/*_original.rs
+src/alignment/*_old.rs
+src/futures/*_enhanced.rs
+src/alignment/*_enhanced.rs
+
 # Generated documentation
 /doc/
 docs/_build/

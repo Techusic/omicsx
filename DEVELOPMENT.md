@@ -277,6 +277,38 @@ pub fn select_kernel(seq1: &[AminoAcid], seq2: &[AminoAcid]) -> KernelType {
 // Automatic host↔device synchronization with CUDA/HIP/Vulkan
 ```
 
+### Backup Files & Archive Strategy
+
+When implementing major feature enhancements, original implementations are archived locally but excluded from git:
+
+| Type | Pattern | Purpose | Examples |
+|------|---------|---------|----------|
+| Original implementations | `*_original.rs` | Pre-enhancement baselines | `phylogeny_likelihood_original.rs`, `msa_profile_alignment_original.rs` |
+| Previous variants | `*_old.rs` | SIMD kernel iterations | Previous scalar-only implementations |
+| Staged enhancements | `*_enhanced.rs` | Temporary staging files | Development-in-progress modules |
+
+**Git Configuration** (in `.gitignore`):
+```
+# Enhanced implementation backups (Phase 3)
+src/futures/*_original.rs
+src/alignment/*_old.rs
+src/futures/*_enhanced.rs
+src/alignment/*_enhanced.rs
+```
+
+**Benefits for Development**:
+- ✅ Local regression testing against original implementations
+- ✅ Quick rollback if enhancements introduce issues
+- ✅ Preserve architectural decisions without cluttering history
+- ✅ Support A/B performance comparisons during optimization
+
+**Workflow for Feature Enhancement**:
+1. **Before starting**: `cp original_file.rs original_file_original.rs` (local archive)
+2. **During development**: Make edits to `original_file.rs`
+3. **Testing**: Compare against `original_file_original.rs` for regression
+4. **Commit**: Add `.gitignore` patterns; push main implementation only
+5. **Archive**: Keep `*_original.rs` locally for future reference (not in git)
+
 ## Development Workflow
 
 ### 1. Feature Branch Workflow
