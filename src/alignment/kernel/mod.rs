@@ -2,9 +2,11 @@
 //!
 //! Architecture-specific SIMD-accelerated alignment kernels.
 //! Provides compile-time selection between scalar, SIMD, and GPU implementations.
+//! Includes specialized kernels for HMM training and phylogenetic inference.
 
 pub mod scalar;
 pub mod banded;
+pub mod hmm_simd;
 
 #[cfg(target_arch = "x86_64")]
 pub mod avx2;
