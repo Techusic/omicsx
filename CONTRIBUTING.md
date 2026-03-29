@@ -1,6 +1,10 @@
-# Contributing to OMICS-SIMD
+# Contributing to Omnics-X
 
-Thank you for your interest in contributing to OMICS-SIMD! This document provides guidelines and procedures for contributing.
+**Maintained by**: Raghav Maheshwari (@techusic)  
+**Email**: raghavmkota@gmail.com  
+**Repository**: https://github.com/techusic/omnics-x
+
+Thank you for your interest in contributing to Omnics-X! This document provides guidelines and procedures for contributing.
 
 ## Code of Conduct
 
@@ -8,8 +12,8 @@ Be respectful, inclusive, and professional in all interactions.
 
 ## Getting Started
 
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/omics-simd.git`
+1. Fork the repository: https://github.com/techusic/omnics-x/fork
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/omnics-x.git`
 3. Create a feature branch: `git checkout -b feature/your-feature-name`
 4. Set up your environment: `cargo build --release`
 
@@ -162,7 +166,7 @@ src/
 
 ## Licensing
 
-By contributing to OMICS-SIMD, you agree that your contributions will be licensed under the MIT License.
+By contributing to Omnics-X, you agree that your contributions will be licensed under the MIT License.
 
 ## Questions?
 

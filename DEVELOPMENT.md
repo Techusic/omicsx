@@ -1,5 +1,9 @@
 # Development Guide
 
+**Maintained by**: Raghav Maheshwari (@techusic)  
+**Email**: raghavmkota@gmail.com  
+**Repository**: https://github.com/techusic/omnics-x
+
 This document provides detailed instructions for developing Omnics-X.
 
 ## Quick Start

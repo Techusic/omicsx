@@ -2,7 +2,7 @@
 name = "omics-simd"
 version = "0.1.0"
 edition = "2021"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Raghav Maheshwari <raghavmkota@gmail.com>"]
 description = "Omnics-X: SIMD-accelerated sequence alignment and bioinformatics analysis"
 license = "MIT"
 readme = "README.md"

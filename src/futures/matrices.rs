@@ -68,7 +68,7 @@ impl std::error::Error for MatrixError {}
 ///
 /// Checks that the matrix is:
 /// 1. Square (24x24)
-/// 2. Symmetric (M[i,j] = M[j,i])
+/// 2. Symmetric (M\[i,j\] = M\[j,i\])
 /// 3. Properly scaled (reasonable values for amino acid substitutions)
 pub fn validate_matrix(data: &[Vec<i32>]) -> Result<MatrixValidation, MatrixError> {
     if data.len() != 24 {

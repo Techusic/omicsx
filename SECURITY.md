@@ -4,12 +4,12 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| 0.1.x   | :☑️: |
 | < 0.1   | :x:                |
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in OMICS-SIMD, please email security@omics-simd.dev with:
+If you discover a security vulnerability in Omnics-X, please email raghavmkota@gmail.com with subject line "[SECURITY] Omnics-X Vulnerability" with:
 
 1. **Description**: Clear explanation of the vulnerability
 2. **Affected Versions**: Which versions are impacted
@@ -25,7 +25,7 @@ If you discover a security vulnerability in OMICS-SIMD, please email security@om
 ## Security Considerations
 
 ### Memory Safety
-- OMICS-SIMD leverages Rust's memory safety guarantees
+- Omnics-X leverages Rust's memory safety guarantees
 - No unsafe code except in SIMD kernel modules with careful review
 - All public APIs are memory-safe
 
@@ -65,4 +65,4 @@ Security fixes are released in:
 2. With a security advisory on GitHub
 3. Announced via CHANGELOG.md
 
-Thank you for helping keep OMICS-SIMD secure!
+Thank you for helping keep Omnics-X secure!

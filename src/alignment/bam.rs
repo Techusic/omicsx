@@ -25,7 +25,7 @@
 //! - CIGAR string (encoded as array of (op, count) pairs)
 //! - Optional tags (key:type:value pairs)
 //!
-//! See: https://samtools.github.io/hts-specs/SAMv1.pdf
+//! See: <https://samtools.github.io/hts-specs/SAMv1.pdf>
 
 use crate::alignment::{SamHeader, SamRecord};
 use crate::error::Result;

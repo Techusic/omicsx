@@ -29,7 +29,7 @@
     }
   ],
   "labels": ["dependencies"],
-  "assignees": ["@maintainers"],
-  "reviewers": ["@maintainers"],
+  "assignees": ["@techusic"],
+  "reviewers": ["@techusic"],
   "minimumReleaseAge": "3 days"
 }

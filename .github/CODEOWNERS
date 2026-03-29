@@ -3,35 +3,35 @@
 # This file is used by GitHub to automatically request reviewers for PRs
 # affecting specific areas of the codebase.
 
-# Default reviewers
-* @maintainers
+# Default reviewer
+* @techusic
 
 # Protein primitives
-/src/protein/ @maintainers
+/src/protein/ @techusic
 
 # Scoring infrastructure
-/src/scoring/ @maintainers
+/src/scoring/ @techusic
 
 # Alignment kernels
-/src/alignment/ @maintainers
+/src/alignment/ @techusic
 
 # SIMD implementations
-/src/alignment/kernel/avx2.rs @simd-expert
-/src/alignment/kernel/neon.rs @simd-expert
+/src/alignment/kernel/avx2.rs @techusic
+/src/alignment/kernel/neon.rs @techusic
 
 # Future enhancements
-/src/futures/ @maintainers
+/src/futures/ @techusic
 
 # Documentation
-/README.md @docs-team
-/CHANGELOG.md @maintainers
-*.md @docs-team
+/README.md @techusic
+/CHANGELOG.md @techusic
+*.md @techusic
 
 # Tests
-/src/**/*.rs @test-team
+/src/**/*.rs @techusic
 
 # Build and CI
-/Cargo.toml @maintainers
-/.github/ @maintainers
-appveyor.yml @maintainers
-.github/workflows/ @maintainers
+/Cargo.toml @techusic
+/.github/ @techusic
+appveyor.yml @techusic
+.github/workflows/ @techusic

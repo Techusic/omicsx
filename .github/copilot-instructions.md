@@ -287,6 +287,7 @@ cargo fmt --check
 
 ---
 
-**Last Updated**: March 29, 2024  
-**Project Status**: Phase 3 - Scalar implementations complete, SIMD optimization pending  
-**Next Priority**: Complete CIGAR generation, then begin AVX2 kernel implementation
+**Last Updated**: March 29, 2026  
+**Author**: Raghav Maheshwari (@techusic)  
+**Email**: raghavmkota@gmail.com  
+**Repository**: https://github.com/techusic/omnics-x
