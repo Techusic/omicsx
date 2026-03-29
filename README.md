@@ -10,7 +10,7 @@
 
 **High-performance SIMD-accelerated sequence alignment for petabyte-scale genomic analysis**
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Installation](#-installation) • [Documentation](#-documentation) • [Benchmarks](#-benchmarks)
+[Features](#-key-features) • [Quick Start](#-quick-start) • [Installation](#-installation) • [Documentation](#-documentation) • [Benchmarks](#-performance-characteristics)
 
 </div>
 
