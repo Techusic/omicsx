@@ -411,13 +411,14 @@ pub struct SmithWaterman {
 impl SmithWaterman {
     /// Create new Smith-Waterman aligner with default settings
     /// 
-    /// Currently defaults to scalar implementation due to SIMD overhead
-    /// exceeding parallelism benefits. See Issue: AVX2 Optimization Needed
+    /// Create new Smith-Waterman aligner with default settings
+    /// 
+    /// Defaults to striped SIMD implementation for improved performance
     pub fn new() -> Self {
         SmithWaterman {
             matrix: ScoringMatrix::default(),
             penalty: AffinePenalty::default(),
-            use_simd: false,  // Scalar is faster until we redesign the kernel
+            use_simd: true,  // Striped SIMD is now faster than scalar
             bandwidth: None,
         }
     }
@@ -492,7 +493,7 @@ impl SmithWaterman {
     fn align_simd(&self, seq1: &Protein, seq2: &Protein) -> Result<AlignmentResult> {
         #[cfg(target_arch = "x86_64")]
         {
-            let (h, max_i, max_j) = kernel::avx2::smith_waterman_avx2(
+            let (h, max_i, max_j) = kernel::striped_simd::smith_waterman_striped_avx2(
                 seq1.sequence(),
                 seq2.sequence(),
                 &self.matrix,
@@ -687,7 +688,7 @@ impl NeedlemanWunsch {
     fn align_simd(&self, seq1: &Protein, seq2: &Protein) -> Result<AlignmentResult> {
         #[cfg(target_arch = "x86_64")]
         {
-            let h = kernel::avx2::needleman_wunsch_avx2(
+            let h = kernel::striped_simd::needleman_wunsch_striped_avx2(
                 seq1.sequence(),
                 seq2.sequence(),
                 &self.matrix,
