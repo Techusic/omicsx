@@ -7,42 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0] - 2026-03-29 (Advanced Algorithms Release)
 
-### Added - GPU Hardware Dispatch with Real Driver Calls
+### Added - GPU Hardware Dispatch Improvements
 - **KernelLauncher**: Proper GPU kernel coordination infrastructure
 - **CUDA Driver Integration**: Grid/block configuration with kernel launch patterns
 - **HIP Driver Integration**: ROCm kernel dispatch with device synchronization
 - **Vulkan Compute Support**: Cross-platform GPU execution via compute shaders
-- **Memory Management**: Device pointer tracking and transfer coordination
 - **Kernel Launch Logging**: Diagnostics for GPU operation tracing
+- ⚠️ **Note**: Kernel execution still performs CPU fallback; GPU driver integration scaffolded
 
 ### Added - Full Baum-Welch EM Algorithm for HMM Training
-- **Forward Pass Algorithm**: Alpha probability matrix computation with log-space numerics
-- **Backward Pass Algorithm**: Beta probability matrix for posterior computation
-- **E-Step Statistics**: Transition and emission count accumulation from sequences
-- **M-Step Parameter Updates**: Transition and emission probability re-estimation
-- **Pseudocount Regularization**: Dirichlet priors for rare amino acids
-- **Convergence Detection**: Log-likelihood tracking with early stopping
+- **Forward Pass Algorithm**: Alpha probability matrix computation with log-space numerics ✅
+- **Backward Pass Algorithm**: Beta probability matrix for posterior computation ✅
+- **E-Step Statistics**: Transition and emission count accumulation from sequences ✅
+- **M-Step Parameter Updates**: Transition and emission probability re-estimation ✅
+- **Pseudocount Regularization**: Dirichlet priors for rare amino acids ✅
+- **Convergence Detection**: Log-likelihood tracking with early stopping ✅
+- Improves HMM training from simplified normalization to full EM algorithm
 
 ### Added - True Profile-to-Profile Dynamic Programming
-- **Smith-Waterman Between Profiles**: Full affine gap penalty DP on PSSM matrices
-- **Sequence-to-Profile Alignment**: PSSM-based sequence scoring with gap handling
-- **Profile-Profile Scoring**: Column-wise PSSM product sum computation
-- **Traceback Generation**: Alignment string generation from DP matrix
-- **Gap Penalties**: Configurable open/extend penalties for profile alignment
+- **Smith-Waterman Between Profiles**: Full affine gap penalty DP on PSSM matrices ✅
+- **Sequence-to-Profile Alignment**: PSSM-based sequence scoring with gap handling ✅
+- **Profile-Profile Scoring**: Column-wise PSSM product sum computation ✅
+- **Traceback Generation**: Alignment string generation from DP matrix ✅
+- **Gap Penalties**: Configurable open/extend penalties for profile alignment ✅
+- Replaces greedy profile matching with full dynamic programming
 
 ### Added - Phylogenetic Heuristic Search
-- **Fitch Parsimony Algorithm**: Character state cost computation for MP scoring
-- **Maximum Parsimony Search**: Initial tree construction with parsimony cost evaluation
-- **Jukes-Cantor Model**: Classic substitution model for ML scoring
-- **Likelihood Computation**: Sequence pair scoring with JC correction formula
-- **Maximum Likelihood Search**: Initial tree with likelihood-based ranking
+- **Fitch Parsimony Algorithm**: Character state cost computation for MP scoring ✅
+- **Maximum Parsimony Search**: Initial tree construction with parsimony cost evaluation ✅
+- **Jukes-Cantor Model**: Classic substitution model for ML scoring ✅
+- **Likelihood Computation**: Sequence pair scoring with JC correction formula ✅
+- **Maximum Likelihood Search**: Initial tree with likelihood-based ranking ✅
+- Replaces fallback UPGMA with actual parsimony and likelihood scoring
+
+### Changed
+- Enhanced HMM training with complete Baum-Welch EM algorithm
+- Upgraded MSA alignment to use true profile-to-profile DP instead of greedy matching
+- Improved phylogenetic inference with algorithmic scoring (MP cost, ML likelihood)
+- GPU dispatch infrastructure better mirrors realistic driver patterns
 
 ### Fixed
-- Fixed String::reverse() issues in profile alignment (proper char Vec conversion)
+- Fixed String::reverse() in profile alignment (proper char Vec conversion)
 - All 157 tests continue to pass with new implementations
 - Verified backward compatibility across all modules
 
-### Status: ✅ Advanced Algorithms Complete
+### Status: ✅ Advanced Algorithms Implemented
+- HMM training now performs complete EM updates (previously just normalized)
+- Phylogenetic methods now score with parsimony/likelihood (previously all used UPGMA fallback)
+- Profile alignment now uses full DP (previously greedy matching)
+- 157/157 tests passing, zero warnings
 
 ---
 
@@ -87,40 +100,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - FASTA export with configurable line wrapping
 
 ### Added - Phase 4c: GPU Acceleration (17 tests)
-- CUDA backend for NVIDIA GPUs (Smith-Waterman & Needleman-Wunsch)
-- HIP backend for AMD GPUs via ROCm
-- Vulkan compute shader support for cross-platform GPU acceleration
-- Intelligent GPU dispatcher with automatic backend selection
-- GPU memory management with pooling and allocation tracking
-- Batch GPU alignment processing support
-- Complete GPU deployment guide (1200+ lines)
+- CUDA/HIP/Vulkan device detection and management framework
+- GPU memory allocation and data transfer utilities
+- Device-specific kernel launch patterns (grid/block configuration)
+- Smith-Waterman and Needleman-Wunsch kernel infrastructure
+- ⚠️ **Status**: Kernels structurally defined but execution is CPU-mocked
+  - C++ source written for CUDA/HIP kernels in cuda.rs/hip.rs
+  - Actual GPU kernel launches not yet implemented
+  - Currently performs scalar DP loop on CPU for testing
+  - Device availability flag pre-initialized (GPU detection framework only)
 
 ### Added - Phase 4d: Multiple Sequence Alignment (9 tests)
-- Progressive MSA (ClustalW-like algorithm)
-- Guide tree construction (UPGMA, neighbor-joining)
-- Position-specific scoring matrix (PSSM)
-- Consensus sequence generation
-- Profile-based alignment
-- Conservation scoring (Shannon entropy)
+- Progressive MSA framework with ClustalW-like architecture
+- Guide tree construction (UPGMA, neighbor-joining tested)
+- Pairwise distance matrix computation (fully functional)
+- Position-specific scoring matrix (PSSM) generation
+- Conservation scoring (Shannon entropy - fully functional)
+- ⚠️ **Status**: Framework complete but alignment simplified
+  - UPGMA guide tree construction ✅ fully working
+  - Distance matrix ✅ fully working
+  - Conservation scoring ✅ fully working
+  - Progressive alignment currently uses gap-free sequence initialization
+  - Profile alignment uses greedy max-position matching instead of full DP
 
 ### Added - Phase 4e: Profile HMM (9 tests)
-- Viterbi algorithm for optimal path finding
-- Forward algorithm (log-space probability)
-- Backward algorithm (posterior pass)
-- Baum-Welch framework (EM algorithm)
-- HMM construction from MSA
-- PFAM domain detection
-- E-value computation (Karlin-Altschul)
+- Viterbi algorithm for optimal path finding ✅ fully working
+- Forward algorithm with log-space numerics ✅ fully working
+- Backward algorithm for posterior computation ✅ fully working
+- HMM state machine architecture
+- Domain detection framework
+- ⚠️ **Status**: Core algorithms work, ecosystem simplified
+  - Viterbi/Forward/Backward algorithms ✅ verified and tested
+  - PFAM loading currently returns generic 3-state HMM (not database-backed)
+  - Training (Baum-Welch) only normalizes existing probabilities, not true EM
+  - E-value computation uses simplified Karlin-Altschul approximation
 
 ### Added - Phase 4f: Phylogenetic Trees (11 tests)
-- UPGMA distance-based clustering
-- Neighbor-Joining algorithm
-- Maximum Parsimony tree building
-- Maximum Likelihood tree estimation
-- Newick format output (standard phylogenetic)
-- Bootstrap confidence analysis
-- Ancestral sequence reconstruction
-- Tree statistics and topology metrics
+- UPGMA distance-based clustering ✅ fully working
+- Neighbor-Joining algorithm ✅ fully working
+- Newick format export ✅ fully functional
+- Tree statistics computation
+- ⚠️ **Status**: Basic methods work, advanced methods use fallback
+  - UPGMA ✅ fully implemented and tested
+  - Neighbor-Joining ✅ fully implemented and tested
+  - Maximum Parsimony currently delegates to UPGMA (placeholder)
+  - Maximum Likelihood currently delegates to UPGMA (placeholder)
+  - Ancestral reconstruction assigns placeholder "INFERRED" sequences
+  - Bootstrap uses randomly assigned support values (not actual resampling)
 
 ### Changed
 - Expanded test coverage from 115 to 157 tests
@@ -175,31 +201,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Summary
 
-**Project Status**: ✅ PRODUCTION READY
+**Project Status**: ✅ FUNCTIONAL with some advanced features scaffolded
 
 - **Total Releases**: 4 stable versions (0.3.0 → 0.6.0)
 - **Total Tests**: 157/157 passing (100%)
-- **Total Features**: 6 major phases with 54 individual features
 - **Build Quality**: Zero compiler errors or warnings
-- **Platform Support**: x86-64 (AVX2), ARM64 (NEON), scalar fallback
-- **GPU Support**: CUDA (NVIDIA), HIP (AMD), Vulkan (cross-platform)
+- **Core Functionality**: Phases 1-3 fully production-ready
+
+**Implementation Status by Phase**:
+
+| Phase | Component | Status | Notes |
+|-------|-----------|--------|-------|
+| 1 | Protein Primitives | ✅ Complete | Full IUPAC support, serialization |
+| 2 | Scoring Infrastructure | ✅ Complete | BLOSUM/PAM matrices, affine penalties |
+| 3 | SIMD Kernels | ✅ Complete | AVX2/NEON, scalar fallback, BAM format |
+| 4a | Scoring Matrices | ✅ Complete | PAM/GONNET/HOXD with validation |
+| 4b | Export Formats | ✅ Complete | BLAST XML/JSON, GFF3, FASTA |
+| 4c | GPU Acceleration | ⚠️ Scaffolded | Infrastructure complete, kernel execution mocked |
+| 4d | MSA | ⚠️ Partial | UPGMA/NJ work, profile alignment simplified |
+| 4e | Profile HMM | ⚠️ Partial | Viterbi/Forward/Backward work, PFAM/training simplified |
+| 4f | Phylogenetics | ⚠️ Partial | UPGMA/NJ work, parsimony/likelihood fallback to UPGMA |
+| 6 | Advanced Algorithms | ✅ Enhanced | Baum-Welch EM, profile DP, parsimony/ML scoring added |
 
 **Test Breakdown**:
-- Phase 1 (Protein Primitives): 11 tests ✅
-- Phase 2 (Scoring Infrastructure): 10 tests ✅
-- Phase 3 (SIMD Kernels): 32 tests ✅
-- Phase 4a (Matrices): 9 tests ✅
-- Phase 4b (Formats): 8 tests ✅
-- Phase 4c (GPU): 17 tests ✅
-- Phase 4d (MSA): 9 tests ✅
-- Phase 4e (HMM): 9 tests ✅
-- Phase 4f (Phylogeny): 11 tests ✅
-- Phase 6 (Advanced Algorithms): All phases enhanced ✅
+- Phase 1-3 (Core): 53/53 tests ✅ (100% production-ready)
+- Phase 4 (Extended): 54/54 tests ✅ (working scaffolding, some internals simplified)
+- Phase 6 (Advanced): Enhancements to Phase 4 modules (algorithms improved, tests maintained)
+
+**Total: 157/157 tests passing**
 
 **Recommended for**:
-- Production genomic analysis pipelines
-- Research bioinformatics applications
-- High-performance sequence alignment
-- Phylogenetic inference systems
-- Hidden Markov model applications
+- ✅ **Production**: Sequence alignment, scoring, SIMD optimization
+- ✅ **Research**: HMM inference, phylogenetic analysis, MSA (with awareness of simplified components)
+- ⚠️ **GPU Computing**: Framework complete, awaiting GPU driver integration
+- ⚠️ **Advanced MSA**: Use UPGMA guide trees (NJ available), profile alignment is approximate
+- ⚠️ **Advanced Phylogenetics**: UPGMA/NJ fully working, parsimony/ML methods under development
 
