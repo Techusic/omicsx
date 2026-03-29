@@ -168,7 +168,7 @@ impl CudaAlignmentKernel {
     /// - Each block processes one SIMD_WIDTH-wide stripe
     /// - Blocks process columns in parallel
     /// - Result: ceil(N / SIMD_WIDTH) blocks
-    pub fn calculate_grid_size(&self, m: usize, n: usize) -> (u32, u32) {
+    pub fn calculate_grid_size(&self, _m: usize, n: usize) -> (u32, u32) {
         const SIMD_WIDTH: usize = 8;
         let grid_x = ((n + SIMD_WIDTH - 1) / SIMD_WIDTH) as u32;
         let grid_y = 1; // Process columns sequentially
