@@ -17,9 +17,11 @@ pub mod bam;
 pub mod gpu_dispatcher;
 pub mod gpu_kernels;
 pub mod cuda_kernels;
+pub mod cuda_device_context;
 
 pub use bam::{BamFile, BamRecord};
 pub use gpu_dispatcher::{GpuDispatcher, GpuAvailability, AlignmentStrategy, GpuDeviceInfo};
+pub use cuda_device_context::CudaDeviceContext;
 
 use crate::error::{Error, Result};
 use crate::protein::{Protein, AminoAcid};

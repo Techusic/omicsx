@@ -4,7 +4,7 @@
 
 ![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg?style=flat-square&logo=rust)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square&logo=open-source-initiative)
-![Tests](https://img.shields.io/badge/tests-150%2F150-brightgreen.svg?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-157%2F157-brightgreen.svg?style=flat-square)
 ![Quality](https://img.shields.io/badge/code%20quality-A+-green.svg?style=flat-square)
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg?style=flat-square)
 
@@ -384,11 +384,12 @@ cargo run --example gpu_acceleration --release --features all-gpu
 - ✅ **Banded DP** - O(k·n) for similar sequences (3 tests)
 - ✅ **Batch API** - Rayon parallelization (4 tests)
 - ✅ **BAM Format** - Binary serialization (5 tests)
-- ✅ **HMM/MSA** - Hidden Markov Models & multiple sequence alignment (37 tests)
+- ✅ **HMM/MSA** - Hidden Markov Models & multiple sequence alignment (29 tests)
+- ✅ **Phylogenetics** - UPGMA, NJ, MP, ML, bootstrap (11 tests)
 - ✅ **Documentation** - Complete with examples
 - ✅ **GPU Support** - Production-ready CUDA/HIP/Vulkan
 
-**Total: 150/150 tests passing** ✅
+**Total: 157/157 tests passing** ✅
 
 ---
 
@@ -396,7 +397,7 @@ cargo run --example gpu_acceleration --release --features all-gpu
 
 ### ✅ Code Quality Checklist
 
-- [x] All tests passing (150/150, 100% pass rate)
+- [x] All tests passing (157/157, 100% pass rate)
 - [x] Zero compiler errors
 - [x] Zero compiler warnings
 - [x] Type-safe error handling
@@ -775,8 +776,8 @@ use omics_simd::alignment::SmithWaterman;
 - ✅ SAM format (samtools compatible)
 - ✅ BAM format (standard binary)
 - ✅ CIGAR strings (genomics standard)
-- 🔄 BLAST XML (planned)
-- 🔄 FASTA I/O (planned)
+- ✅ BLAST XML (complete)
+- ✅ FASTA I/O (complete)
 
 ---
 

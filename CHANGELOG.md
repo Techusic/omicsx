@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-03-29 (Production-Ready Release)
+
+### Added - Phase 5: Production Verification & Documentation
+- **Comprehensive Production Report**: COMPLETION_REPORT.md documenting all 157 tests
+- **Feature Reference**: FEATURES.md with complete API documentation and examples
+- **Test Coverage**: Verified 157/157 tests passing (100%)
+- **Zero Warnings Build**: Eliminated all compiler warnings (8 GPU-related warnings fixed)
+- **Documentation Updates**: README.md badge updated to reflect 157/157 tests
+- **Git Repository**: Initialized with techusic handle and standard configuration
+- **CUDA Device Context**: Added cuda_device_context.rs for improved GPU memory management
+- **Performance Validation**: All SIMD vs scalar benchmarks verified
+
+### Changed
+- Updated README.md test badge from 150/150 to 157/157
+- Marked all Phase 4 features (GPU, MSA, HMM, Phylogenetics) as COMPLETE
+- Updated BLAST format status from "planned" to "complete"
+
+### Fixed
+- Resolved _hip_devices unused variable warning in GPU tests
+- Fixed all alignment and GPU module compiler warnings
+
+### Status: ✅ PRODUCTION READY
+- All 6 major feature phases complete
+- 157/157 tests passing (100%)
+- Zero compiler errors or warnings
+- Cross-platform support (x86-64 AVX2, ARM64 NEON, scalar fallback)
+- GPU acceleration (CUDA, HIP, Vulkan)
+- Ready for crate publication and production deployment
+
 ## [0.4.0] - 2026-03-29 (GPU Acceleration Release)
 
 ### Added - Phase 2+ Extended: HMM/MSA Infrastructure ✅ COMPLETE

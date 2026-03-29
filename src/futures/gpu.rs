@@ -366,7 +366,7 @@ mod tests {
         let devices = detect_devices().expect("Should detect HIP devices");
         std::env::remove_var("OMICS_HIP_DEVICES");
         
-        let hip_devices: Vec<_> = devices.iter()
+        let _hip_devices: Vec<_> = devices.iter()
             .filter(|d| d.backend == GpuBackend::Hip)
             .collect();
         
