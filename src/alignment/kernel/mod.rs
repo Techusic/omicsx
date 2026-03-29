@@ -1,7 +1,7 @@
-//! # SIMD Kernel Module
+//! # SIMD and GPU Kernel Module
 //!
 //! Architecture-specific SIMD-accelerated alignment kernels.
-//! Provides compile-time selection between scalar and SIMD implementations.
+//! Provides compile-time selection between scalar, SIMD, and GPU implementations.
 
 pub mod scalar;
 pub mod banded;
@@ -11,3 +11,12 @@ pub mod avx2;
 
 #[cfg(target_arch = "aarch64")]
 pub mod neon;
+
+#[cfg(feature = "cuda")]
+pub mod cuda;
+
+#[cfg(feature = "hip")]
+pub mod hip;
+
+#[cfg(feature = "vulkan")]
+pub mod vulkan;

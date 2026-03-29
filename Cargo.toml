@@ -12,6 +12,11 @@ serde = { version = "1.0", features = ["derive"] }
 bincode = "1.3"
 thiserror = "1.0"
 rayon = "1.7"
+# GPU acceleration (optional - only enabled with features)
+# cudarc = { version = "0.11", optional = true, features = ["std"] }
+# hip-sys = { version = "0.1", optional = true }
+# ash = { version = "0.37", optional = true }
+# gpu-alloc = { version = "0.6", optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
@@ -20,6 +25,14 @@ rand = "0.8"
 [[bench]]
 name = "alignment_benchmarks"
 harness = false
+
+# [features]
+# default = ["simd"]
+# simd = []
+# cuda = ["cudarc"]
+# hip = ["hip-sys"]
+# vulkan = ["ash", "gpu-alloc"]
+# all-gpu = ["cuda", "hip", "vulkan"]
 
 [profile.release]
 opt-level = 3

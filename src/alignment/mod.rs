@@ -1,20 +1,23 @@
 //! # Alignment Module
 //!
-//! High-performance sequence alignment algorithms with SIMD optimization.
+//! High-performance sequence alignment algorithms with SIMD and GPU optimization.
 //! Provides Smith-Waterman (local) and Needleman-Wunsch (global) alignment implementations.
 //!
-//! ## SIMD Support
+//! ## Performance Optimization Support
 //!
 //! This module supports automatic selection between:
+//! - **GPU Kernels**: CUDA (NVIDIA), HIP (AMD), Vulkan (cross-platform)
 //! - **AVX2 kernels** (x86-64): 8-wide parallelization
-//! - **NEON kernels** (aarch64): 4-wide parallelization (planned)
+//! - **NEON kernels** (aarch64): 4-wide parallelization
 //! - **Scalar kernels**: Portable fallback for all architectures
 
 pub mod kernel;
 pub mod batch;
 pub mod bam;
+pub mod gpu_dispatcher;
 
 pub use bam::{BamFile, BamRecord};
+pub use gpu_dispatcher::{GpuDispatcher, GpuAvailability, AlignmentStrategy, GpuDeviceInfo};
 
 use crate::error::{Error, Result};
 use crate::protein::{Protein, AminoAcid};
