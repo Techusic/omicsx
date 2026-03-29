@@ -26,6 +26,8 @@ pub mod hmm;
 pub mod matrices;
 pub mod msa;
 pub mod phylogeny;
+pub mod pfam;
+pub mod tree_refinement;
 
 // Import and re-export specific items to avoid glob conflicts
 pub use formats::{BlastJson, BlastTabular, BlastXml, FormatError, Gff3Record};
@@ -33,8 +35,10 @@ pub use gpu::{DeviceProperties, GpuBackend, GpuDevice, GpuError, GpuMemory};
 pub use hmm::{Domain, HmmError, HmmState, ProfileHmm, StateType, ViterbiPath};
 pub use matrices::{MatrixError, MatrixValidation};
 pub use msa::{DistanceMatrix, MsaBuilder, MsaError, MultipleSequenceAlignment, Profile};
+pub use pfam::{EValueStats, PfamDatabase, PfamProfile};
 pub use phylogeny::{
     PhylogeneticTree, PhylogenyError, TreeBuilder, TreeMethod as PhylogeneticTreeMethod,
     TreeNode, TreeStats,
 };
+pub use tree_refinement::{RefinableTree, TreeOptimizer, TreeNode as RefinedTreeNode};
 
