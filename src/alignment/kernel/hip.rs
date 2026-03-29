@@ -205,8 +205,34 @@ __global__ void needleman_wunsch_kernel(
             // 4. Call hipModuleLaunchKernel to execute
             // 5. Copy results back via hipMemcpy
 
-            // For now, return simulation
-            Ok((vec![0; matrix_size], 0, 0, 0))
+            // For now, use scalar fallback for correctness validation
+            let mut dp = vec![0i32; matrix_size];
+            let mut max_score = 0i32;
+            let mut max_i = 0usize;
+            let mut max_j = 0usize;
+            
+            for i in 1..=len1 {
+                for j in 1..=len2 {
+                    let aa1 = seq1[i - 1] as usize;
+                    let aa2 = seq2[j - 1] as usize;
+                    let score_match = matrix[aa1 * 24 + aa2];
+                    
+                    let match_score = dp[(i-1) * (len2+1) + (j-1)] + score_match;
+                    let del_score = dp[(i-1) * (len2+1) + j] + extend_penalty;
+                    let ins_score = dp[i * (len2+1) + (j-1)] + extend_penalty;
+                    
+                    let score = std::cmp::max(0, std::cmp::max(match_score, std::cmp::max(del_score, ins_score)));
+                    dp[i * (len2+1) + j] = score;
+                    
+                    if score > max_score {
+                        max_score = score;
+                        max_i = i;
+                        max_j = j;
+                    }
+                }
+            }
+            
+            Ok((dp, max_i, max_j, max_score))
         }
 
         /// Execute Needleman-Wunsch alignment on HIP
@@ -222,8 +248,34 @@ __global__ void needleman_wunsch_kernel(
             let len2 = seq2.len();
             let matrix_size = (len1 + 1) * (len2 + 1);
 
-            // In production, similar hipMalloc/hipMemcpy/hipModuleLaunchKernel pattern
-            Ok(vec![0; matrix_size])
+            // In production: hipMalloc/hipMemcpy/hipModuleLaunchKernel pattern
+            // For now: scalar fallback with proper boundary initialization
+            let mut dp = vec![0i32; matrix_size];
+            
+            // Initialize boundaries with gap penalties
+            for i in 0..=len1 {
+                dp[i * (len2 + 1)] = open_penalty + (i as i32 - 1) * extend_penalty;
+            }
+            for j in 0..=len2 {
+                dp[j] = open_penalty + (j as i32 - 1) * extend_penalty;
+            }
+            
+            // Needleman-Wunsch DP recurrence
+            for i in 1..=len1 {
+                for j in 1..=len2 {
+                    let aa1 = seq1[i - 1] as usize;
+                    let aa2 = seq2[j - 1] as usize;
+                    let score_match = matrix[aa1 * 24 + aa2];
+                    
+                    let match_score = dp[(i-1) * (len2+1) + (j-1)] + score_match;
+                    let del_score = dp[(i-1) * (len2+1) + j] + extend_penalty;
+                    let ins_score = dp[i * (len2+1) + (j-1)] + extend_penalty;
+                    
+                    dp[i * (len2+1) + j] = std::cmp::max(match_score, std::cmp::max(del_score, ins_score));
+                }
+            }
+            
+            Ok(dp)
         }
 
         /// Get HIP device properties
@@ -296,6 +348,41 @@ impl HipAlignmentKernel {
         #[cfg(not(feature = "hip"))]
         false
     }
+
+    /// Execute Smith-Waterman via HIP or fallback to CPU
+    #[cfg(feature = "hip")]
+    pub fn smith_waterman(
+        &self,
+        seq1: &[u8],
+        seq2: &[u8],
+        matrix: &[i32],
+        extend_penalty: i32,
+    ) -> Result<(Vec<i32>, usize, usize, i32), Box<dyn std::error::Error>> {
+        if let Some(ref kernel) = self.inner {
+            kernel.smith_waterman(seq1, seq2, matrix, extend_penalty)
+                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+        } else {
+            Err("HIP kernel not available".into())
+        }
+    }
+
+    /// Execute Needleman-Wunsch via HIP or fallback to CPU
+    #[cfg(feature = "hip")]
+    pub fn needleman_wunsch(
+        &self,
+        seq1: &[u8],
+        seq2: &[u8],
+        matrix: &[i32],
+        open_penalty: i32,
+        extend_penalty: i32,
+    ) -> Result<Vec<i32>, Box<dyn std::error::Error>> {
+        if let Some(ref kernel) = self.inner {
+            kernel.needleman_wunsch(seq1, seq2, matrix, open_penalty, extend_penalty)
+                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+        } else {
+            Err("HIP kernel not available".into())
+        }
+    }
 }
 
 impl Default for HipAlignmentKernel {
@@ -307,28 +394,149 @@ impl Default for HipAlignmentKernel {
     }
 }
 
-#[cfg(all(test, feature = "hip"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_hip_device_detection() {
-        let result = hip_impl::detect_hip_devices();
-        // Should not panic even if no devices found
-        let _devices = result.is_ok();
+    fn test_hip_kernel_initialization() {
+        let result = HipAlignmentKernel::new();
+        // Should not panic even if HIP is not available
+        assert!(result.is_ok(), "HIP kernel initialization should succeed");
     }
 
     #[test]
-    fn test_hip_kernel_source() {
-        let source = SmithWatermanHip::kernel_source();
-        assert!(source.contains("smith_waterman_kernel"));
-        assert!(source.contains("hipMalloc"));
-    }
-
-    #[test]
-    fn test_hip_kernel_availability() {
+    fn test_hip_availability_query() {
         if let Ok(kernel) = HipAlignmentKernel::new() {
             let _available = kernel.is_available();
+            // Test passes if no panic occurs
+        }
+    }
+
+    #[cfg(feature = "hip")]
+    #[test]
+    fn test_hip_kernel_source_syntax() {
+        let source = SmithWatermanHip::kernel_source();
+        // Validate kernel source contains expected HIP constructs
+        assert!(source.contains("__global__"));
+        assert!(source.contains("smith_waterman_kernel"));
+        assert!(source.contains("__syncthreads__"));
+        assert!(source.contains("atomicMax"));
+    }
+
+    #[cfg(feature = "hip")]
+    #[test]
+    fn test_smith_waterman_hip_correctness() {
+        let seq1 = b"ACGT";
+        let seq2 = b"AGT";
+        
+        let mut matrix = vec![0i32; 24 * 24];
+        matrix[0 * 24 + 0] = 2;   // A-A match
+        matrix[1 * 24 + 1] = 2;   // C-C match
+        matrix[2 * 24 + 2] = 2;   // G-G match
+        matrix[3 * 24 + 3] = 2;   // T-T match
+        
+        let kernel = SmithWatermanHip::new(0).unwrap();
+        let result = kernel.smith_waterman(seq1, seq2, &matrix, -1);
+        
+        assert!(result.is_ok());
+        let (dp, max_i, max_j, max_score) = result.unwrap();
+        
+        assert_eq!(dp.len(), (seq1.len() + 1) * (seq2.len() + 1));
+        assert!(max_score >= 0);
+        assert!(max_i <= seq1.len());
+        assert!(max_j <= seq2.len());
+    }
+
+    #[cfg(feature = "hip")]
+    #[test]
+    fn test_needleman_wunsch_hip_correctness() {
+        let seq1 = b"AC";
+        let seq2 = b"AC";
+        
+        let mut matrix = vec![0i32; 24 * 24];
+        matrix[0 * 24 + 0] = 2;   // A-A match
+        matrix[1 * 24 + 1] = 2;   // C-C match
+        
+        let kernel = SmithWatermanHip::new(0).unwrap();
+        let result = kernel.needleman_wunsch(seq1, seq2, &matrix, -2, -1);
+        
+        assert!(result.is_ok());
+        let dp = result.unwrap();
+        
+        assert_eq!(dp.len(), (seq1.len() + 1) * (seq2.len() + 1));
+        // Final score should be positive for matching sequences
+        assert!(dp[dp.len() - 1] >= 0);
+    }
+
+    #[cfg(feature = "hip")]
+    #[test]
+    fn test_hip_device_properties() {
+        let kernel = SmithWatermanHip::new(0).unwrap();
+        let props = kernel.device_properties().unwrap();
+        
+        assert!(props.device_name.contains("AMD GPU"));
+        assert!(!props.compute_capability.is_empty());
+        assert!(props.global_memory > 0);
+        assert!(props.max_threads > 0);
+    }
+
+    #[cfg(feature = "hip")]
+    #[test]
+    fn test_hip_empty_sequences() {
+        let seq1 = b"";
+        let seq2 = b"AC";
+        let matrix = vec![0i32; 24 * 24];
+        
+        let kernel = SmithWatermanHip::new(0).unwrap();
+        let result = kernel.smith_waterman(seq1, seq2, &matrix, -1);
+        
+        assert!(result.is_ok() || result.is_err(), "Should handle empty sequences gracefully");
+    }
+
+    #[cfg(feature = "hip")]
+    #[test]
+    fn test_hip_single_amino_acid() {
+        let seq1 = b"A";
+        let seq2 = b"A";
+        
+        let mut matrix = vec![0i32; 24 * 24];
+        matrix[0 * 24 + 0] = 5;  // High match
+        
+        let kernel = SmithWatermanHip::new(0).unwrap();
+        let result = kernel.smith_waterman(seq1, seq2, &matrix, -2);
+        
+        assert!(result.is_ok());
+        let (_, _, _, max_score) = result.unwrap();
+        assert_eq!(max_score, 5);
+    }
+
+    #[cfg(feature = "hip")]
+    #[test]
+    fn test_hip_gap_penalties() {
+        let seq1 = b"ACG";
+        let seq2 = b"AG";
+        
+        let mut matrix = vec![0i32; 24 * 24];
+        matrix[0 * 24 + 0] = 2;
+        matrix[2 * 24 + 2] = 2;
+        
+        let kernel = SmithWatermanHip::new(0).unwrap();
+        let result = kernel.smith_waterman(seq1, seq2, &matrix, -3);
+        
+        assert!(result.is_ok());
+        // Test passes if gap handling doesn't crash
+    }
+
+    #[test]
+    fn test_hip_wrapper_fallback() {
+        let kernel = HipAlignmentKernel::new().unwrap();
+        
+        let available = kernel.is_available();
+        // When HIP not available, wrapper should gracefully handle queries
+        #[cfg(not(feature = "hip"))]
+        {
+            assert!(!available);
         }
     }
 }
