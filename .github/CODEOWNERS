@@ -1,0 +1,37 @@
+# CODEOWNERS file for OMICS-SIMD
+# 
+# This file is used by GitHub to automatically request reviewers for PRs
+# affecting specific areas of the codebase.
+
+# Default reviewers
+* @maintainers
+
+# Protein primitives
+/src/protein/ @maintainers
+
+# Scoring infrastructure
+/src/scoring/ @maintainers
+
+# Alignment kernels
+/src/alignment/ @maintainers
+
+# SIMD implementations
+/src/alignment/kernel/avx2.rs @simd-expert
+/src/alignment/kernel/neon.rs @simd-expert
+
+# Future enhancements
+/src/futures/ @maintainers
+
+# Documentation
+/README.md @docs-team
+/CHANGELOG.md @maintainers
+*.md @docs-team
+
+# Tests
+/src/**/*.rs @test-team
+
+# Build and CI
+/Cargo.toml @maintainers
+/.github/ @maintainers
+appveyor.yml @maintainers
+.github/workflows/ @maintainers

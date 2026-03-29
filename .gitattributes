@@ -1,0 +1,23 @@
+# Auto detect text files and normalize line endings to LF
+* text=auto
+
+# Rust files
+*.rs text eol=lf
+*.toml text eol=lf
+Cargo.lock text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+
+# Scripts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Binary files
+*.rlib binary
+*.so binary
+*.dylib binary
+*.dll binary
+*.exe binary
+*.a binary

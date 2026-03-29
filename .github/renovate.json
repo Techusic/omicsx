@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":dependencyDashboard",
+    ":semanticCommits"
+  ],
+  "schedule": [
+    "before 3am on Monday"
+  ],
+  "cargo": {
+    "rangeStrategy": "pin"
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "reviewers": ["maintainers"]
+    },
+    {
+      "matchDatasources": ["crate"],
+      "groupName": "Rust dependencies"
+    }
+  ],
+  "labels": ["dependencies"],
+  "assignees": ["@maintainers"],
+  "reviewers": ["@maintainers"],
+  "minimumReleaseAge": "3 days"
+}

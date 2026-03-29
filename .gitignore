@@ -1,0 +1,33 @@
+# Rust
+/target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Build artifacts
+/dist/
+/build/
+*.o
+*.a
+*.so
+*.dylib
+
+# Criterion benchmarks
+/target/criterion/
+
+# Environment
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.log
