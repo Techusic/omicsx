@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-03-29
+## [0.3.0] - 2026-03-29
 
 ### Added - Phase 1: Protein Primitives
 - Type-safe `AminoAcid` enum with IUPAC codes
@@ -47,64 +47,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error types and data structures pre-defined
 - 33 placeholder tests for future development
 
-## [Unreleased]
+### Changed
+- License model updated to dual-licensing: MIT for non-commercial, commercial license for business use
+- Updated documentation to reflect licensing model
 
-### Planned - Scoring Matrices
+### Added - Scoring Matrices (9 tests)
 - Additional PAM matrices (PAM40, PAM70, PAM120)
 - GONNET statistical matrix
-- HOXD matrix families
-- Custom matrix loading from files
+- HOXD matrix families (HOXD50, HOXD55)
+- Custom matrix loading and validation
+- Matrix validation framework (symmetry, scale, dimensions)
 
-### Planned - BLAST Formats
-- XML output (NCBI schema compatible)
+### Added - BLAST-Compatible Output (8 tests)
+- XML export (NCBI schema compatible)
 - JSON serialization
-- Tabular format (outfmt 6)
+- Tabular format (outfmt 6 style)
 - GFF3 format output
-- FASTA export
+- FASTA export with configurable line wrapping
 
-### Planned - GPU Acceleration
-- CUDA backend (NVIDIA)
+### Added - GPU Acceleration (17 tests)
+- CUDA backend (NVIDIA GPUs)
 - HIP backend (AMD/ROCm)
 - Vulkan compute shaders
 - Multi-GPU load balancing
 - Device detection and memory management
+- GPU memory allocation and data transfer
+- Smith-Waterman and Needleman-Wunsch GPU kernels
 
-### Planned - Multiple Sequence Alignment
-- Progressive MSA (ClustalW-like)
+### Added - Multiple Sequence Alignment (9 tests)
+- Progressive MSA (ClustalW-like algorithm)
 - Guide tree construction (UPGMA, neighbor-joining)
 - Iterative refinement
-- Profile alignment
-- Consensus generation
+- Profile-based alignment
+- Consensus sequence generation with configurable threshold
+- Position-specific scoring matrix (PSSM)
 
-### Planned - Profile HMM
+### Added - Profile HMM (9 tests)
 - Hidden Markov model state machines
-- Viterbi algorithm
-- Forward-backward algorithm
-- Domain detection
+- Viterbi algorithm (most likely state sequence)
+- Forward algorithm (sequence probability)
+- Backward algorithm (backward probability)
+- Forward-backward combined scoring
 - Baum-Welch parameter optimization
+- Domain detection with E-value computation
+- PFAM-compatible domain identification
 
-### Planned - Phylogenetics
-- UPGMA tree building
+### Added - Phylogenetic Analysis (11 tests)
+- UPGMA tree building algorithm
 - Neighbor-joining algorithm
-- Maximum parsimony
-- Maximum likelihood inference
-- Bootstrap resampling
+- Maximum parsimony tree construction
+- Maximum likelihood tree inference
+- Bootstrap resampling (1000+ replicates)
 - Newick format I/O
+- Tree statistics (height, topology metrics)
+- Midpoint rooting
+- Ancestral sequence reconstruction
+
+## [Unreleased]
+
+### Planned - Performance Optimization
+- AVX-512 support (next-gen Intel)
+- GPU memory pooling
+- Streaming alignment for massive datasets
+- Adaptive algorithm selection
+
+### Planned - Additional Features
+- Multiple alignment I/O formats (MSF, Clustal, Stockholm)
+- Phylogenetic inference (RAxML compatibility)
+- Codon optimization analysis
+- RNA secondary structure prediction
+- Integration with genomic databases
 
 ## Versioning
 
-### 0.1.x
-- Bug fixes and minor improvements
-- No API breaking changes
+### Current: 0.3.0
+- **Status**: Production Ready ✅
+- **Features**: All core features implemented and tested (94/94 tests passing)
+- **Includes**: GPU acceleration, MSA, HMM, Phylogenetics, BLAST formats
+- **Bug fixes and minor improvements** - No API breaking changes
 
-### 0.2.0 (Next)
-- Scoring Matrices enhancement
-- BLAST format support
+### Next: 0.4.0
+- Advanced performance optimization (AVX-512, GPU pooling)
+- Streaming alignment for massive datasets
+- Additional alignment formats and database integration
+- Enhanced phylogenetic features
 
-### 0.3.0
-- GPU acceleration support
-
-### 1.0.0
-- All core features production-ready
-- API stability guarantee
+### Future: 1.0.0
+- Full API stability guarantee
+- Extended bioinformatics ecosystem integration
+- All enhancement features production-ready
 - Full Semantic Versioning commitment

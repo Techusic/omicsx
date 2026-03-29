@@ -782,7 +782,12 @@ If you use Omnics-X in published research, please cite:
 
 ## 📄 License
 
-MIT License - See [LICENSE](LICENSE) file for details.
+Dual-licensed:
+
+**Non-Commercial**: MIT License - Free for educational, research, and open-source projects  
+**Commercial**: Separate commercial license required - Contact raghavmkota@gmail.com
+
+See [LICENSE](LICENSE) file for full terms.
 
 ---
 

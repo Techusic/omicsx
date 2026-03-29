@@ -166,7 +166,11 @@ src/
 
 ## Licensing
 
-By contributing to Omnics-X, you agree that your contributions will be licensed under the MIT License.
+By contributing to Omnics-X, you agree that your contributions will be made available under:
+- **MIT License** for non-commercial use
+- **Dual commercial license** as part of the project's commercial licensing model
+
+Your contributions may be used in both open-source and commercial contexts.
 
 ## Questions?
 
