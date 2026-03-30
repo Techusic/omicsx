@@ -137,6 +137,7 @@ impl Default for CudaKernelConfig {
 /// Placeholder for actual CUDA kernel interface
 /// In production, this would interface with cudarc or similar
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct CudaAlignmentKernel {
     config: CudaKernelConfig,
     device_id: i32,
@@ -205,6 +206,7 @@ impl CudaAlignmentKernel {
 
 /// Multi-GPU batch processing context
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct CudaMultiGpuBatch {
     /// Allocated GPU devices
     devices: Vec<i32>,

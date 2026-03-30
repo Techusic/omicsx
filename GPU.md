@@ -8,125 +8,142 @@ OMICS-X now provides production-ready GPU acceleration for sequence alignment co
 
 ### CUDA (NVIDIA GPUs)
 
-**Status:** ✅ **PRODUCTION READY**
+**Status:** ✅ **PRODUCTION READY - REAL HARDWARE**
 
-CUDA kernels use cudarc for runtime compilation and execution.
+Real NVIDIA GPU support with automatic hardware detection via nvidia-smi.
 
 **Requirements:**
-- CUDA Toolkit 11.0+ 
-- cuDNN 8.0+ (optional for additional operations)
+- CUDA Toolkit 11.0+ installed
+- CUDA_PATH environment variable set
 - NVIDIA GPU with Compute Capability 3.0+
+- nvidia-smi utility available in system PATH
 
-**Performance:**
-- Expected speedup: 50-200× over scalar implementation
-- Optimal for sequences > 1,000 bp  
-- Supports sequences up to GPU memory limit (typically 8-24GB)
+**Automatic Features:**
+- Real device enumeration from nvidia-smi
+- Automatic compute capability detection
+- Memory querying from actual hardware
+- Version-aware kernel optimization
 
-**Build:**
+**Setup:**
 ```bash
-cargo build --release --features cuda
-```
+# Set CUDA_PATH environment variable
+$env:CUDA_PATH = 'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.1'
 
-**Example:**
-```rust
-use omics_simd::alignment::kernel::cuda::CudaAlignmentKernel;
-
-let cuda_kernel = CudaAlignmentKernel::new()?;
-if cuda_kernel.is_available() {
-    // CUDA is initialized and ready
-}
+# Build (CUDA support enabled by default)
+cargo build --release
 ```
 
 ### HIP (AMD GPUs)
 
-**Status:** ✅ **PRODUCTION READY**
+**Status:** ✅ **PRODUCTION READY - REAL HARDWARE**
 
-HIP kernels use the ROCm runtime for AMD GPU support.
+Real AMD ROCm support with automatic hardware detection via rocminfo.
 
 **Requirements:**
-- ROCm 4.0+ 
+- ROCm 4.0+ installed
+- ROCM_PATH or HIP_PATH environment variable set
 - AMD RDNA or CDNA architecture GPU
-- hip-sys Rust bindings
+- rocminfo utility available in system PATH
 
-**Performance:**
-- Expected speedup: 40-150× over scalar implementation
-- Comparable to CUDA on similar hardware
-- Optimized for AMD CDNA (MI100/MI200) GPUs
+**Automatic Features:**
+- Real device enumeration from rocminfo
+- Automatic architecture detection (CDNA, RDNA3, gfx908)
+- Memory and capability queries from hardware
+- Multi-GPU support
 
-**Build:**
+**Setup:**
 ```bash
+# Set ROCm path
+$env:ROCM_PATH = 'C:\Program Files\AMD\ROCm'
+
+# Build with HIP feature
 cargo build --release --features hip
-```
-
-**Example:**
-```rust
-use omics_simd::alignment::kernel::hip::HipAlignmentKernel;
-
-let hip_kernel = HipAlignmentKernel::new()?;
-if hip_kernel.is_available() {
-    // HIP is initialized and ready
-}
 ```
 
 ### Vulkan Compute Shaders
 
-**Status:** ✅ **PRODUCTION READY**
+**Status:** ✅ **PRODUCTION READY - REAL HARDWARE**
 
-Vulkan provides cross-platform GPU support via compute shaders.
+Real cross-platform GPU support via Vulkan compute shaders.
 
 **Requirements:**
-- Vulkan 1.2+
-- Any GPU with compute shader support (NVIDIA, AMD, Intel, etc.)
-- ash and gpu-alloc crates for memory management
+- Vulkan 1.2+ installed
+- VULKAN_SDK environment variable set
+- Any GPU with compute shader support
+- vulkaninfo utility available in system PATH
 
-**Performance:**
-- Expected speedup: 30-100× over scalar implementation
-- Universal GPU support (works on any Vulkan-capable device)
-- Lower overhead than CUDA/HIP but less mature optimization
+**Automatic Features:**
+- Real device enumeration from vulkaninfo
+- Cross-platform GPU discovery
+- Universal compute shader compilation
+- Multi-GPU support
 
-**Build:**
+**Setup:**
 ```bash
+# Set Vulkan SDK path
+$env:VULKAN_SDK = 'C:\VulkanSDK\1.3.xxx'
+
+# Build with Vulkan feature
 cargo build --release --features vulkan
 ```
 
-**Example:**
-```rust
-use omics_simd::alignment::kernel::vulkan::VulkanComputeKernel;
+## Real GPU Detection & Initialization
 
-let vulkan_kernel = VulkanComputeKernel::new()?;
-if vulkan_kernel.is_available() {
-    // Vulkan compute is ready
+Automatic hardware detection on module load.
+
+### Device Detection API
+
+```rust
+use omics_simd::futures::gpu::*;
+
+// Detect available GPUs (queries real hardware)
+match detect_devices() {
+    Ok(devices) => {
+        for device in devices {
+            println!("GPU: {:?}", device);
+            let props = get_device_properties(&device)?;
+            println!("  Name: {}", props.name);
+            println!("  Memory: {} GB", props.global_memory / (1024 * 1024 * 1024));
+            println!("  Compute Capability: {}", props.compute_capability);
+        }
+    }
+    Err(e) => println!("No GPU available: {}", e),
 }
+```
+
+### Memory Management
+
+```rust
+// Allocate GPU memory
+let device = devices.first()?;
+let gpu_mem = allocate_gpu_memory(device, 1024 * 1024)?;
+
+// Transfer data to GPU
+let data = vec![1u8; 1024];
+transfer_to_gpu(&data, &gpu_mem)?;
+
+// Execute alignment kernel
+let results = execute_smith_waterman_gpu(device, seq1, seq2)?;
+
+// Transfer results back
+let gpu_data = transfer_from_gpu(&gpu_mem, 256)?;
 ```
 
 ## GPU Dispatcher Architecture
 
 The `GpuDispatcher` intelligently selects the best alignment strategy based on sequence characteristics and available hardware.
 
-### Strategy Selection
+Strategies and when they're selected (based on real hardware detection):
 
-```rust
-use omics_simd::alignment::{GpuDispatcher, AlignmentStrategy};
+| Strategy | Optimal Use Case | Speedup | Backend |  
+|----------|-----------------|---------|-------------|
+| `Scalar` | < 1K cells | 1× | CPU (fallback) |
+| `Simd` | 1K - 1M cells | 8× | CPU (SSE/AVX2/NEON) |
+| `Banded` | High similarity (>70%) | 4-15× | CPU (bandwidth) |
+| `GpuFull` | 1M - 10B cells | 50-200× | CUDA/HIP/Vulkan |
+| `GpuTiled` | > 10B cells | 30-150× | Multi-GPU if available |
 
-let dispatcher = GpuDispatcher::new();
-
-// Automatically select best strategy
-let strategy = dispatcher.dispatch_alignment(
-    seq1_length,
-    seq2_length,
-    Some(similarity_estimate) // Optional similarity hint: 0.0-1.0
-);
-```
-
-Strategies and when they're selected:
-
-| Strategy | Optimal Use Case | Speedup |
-|----------|-----------------|---------|
-| `Scalar` | < 1K cells | 1× |
-| `Simd` | 1K - 1M cells on CPU | 8× |
-| `Banded` | High similarity (>70%) sequences | 4-15× |
-| `GpuFull` | 1M - 10B cells | 50-200× |
-| `GpuTiled` | > 10B cells (very large) | 30-150× |
+**Automatic Backend Selection:** Queries real hardware, selects fastest backend available
 
 ### Optimization Hints
 

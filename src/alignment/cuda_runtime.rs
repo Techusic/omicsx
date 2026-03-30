@@ -39,12 +39,12 @@ impl GpuRuntime {
     }
 
     /// Create new GPU runtime for specified device
-    pub fn new(device_id: u32) -> Result<Self> {
+    pub fn new(_device_id: u32) -> Result<Self> {
         #[cfg(feature = "cuda")]
         {
             use cudarc::driver::{CudaDevice, DriverError};
-            let device = CudaDevice::new(device_id as usize)
-                .map_err(|e| Error::AlignmentError(format!("Failed to initialize GPU {}: {}", device_id, e)))?;
+            let device = CudaDevice::new(_device_id as usize)
+                .map_err(|e| Error::AlignmentError(format!("Failed to initialize GPU {}: {}", _device_id, e)))?;
 
             // Get device memory
             let total_memory = match device.get_device_memory() {
@@ -59,7 +59,7 @@ impl GpuRuntime {
 
             Ok(GpuRuntime {
                 device: Arc::new(device),
-                device_id,
+                device_id: _device_id,
                 total_memory,
                 allocated: Arc::new(Mutex::new(0)),
             })
@@ -196,6 +196,7 @@ impl GpuRuntime {
 }
 
 /// GPU memory buffer wrapper with RAII semantics
+#[allow(dead_code)]
 pub struct GpuBuffer<T: Default + Clone + std::marker::Send = i32> {
     #[cfg(feature = "cuda")]
     ptr: Option<DevicePtr<T>>,

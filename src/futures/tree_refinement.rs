@@ -3,7 +3,6 @@
 //! Implements local search methods for improving phylogenetic tree topology.
 
 use crate::error::Result;
-use std::collections::{HashMap, VecDeque};
 
 /// Phylogenetic tree node
 #[derive(Debug, Clone)]
@@ -101,7 +100,7 @@ impl RefinableTree {
                 }
 
                 let original_parent = parent.unwrap();
-                let original_branch = self.nodes[subtree_id].branch_length;
+                let _original_branch = self.nodes[subtree_id].branch_length;
 
                 // Try reattaching to every edge
                 for attach_point in 0..self.nodes.len() {

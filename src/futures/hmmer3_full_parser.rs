@@ -73,7 +73,7 @@ impl Hmmer3Database {
         let reader = BufReader::new(file);
 
         let mut db = Hmmer3Database::new();
-        let mut lines: Vec<String> = reader.lines().collect::<std::result::Result<_, _>>()
+        let lines: Vec<String> = reader.lines().collect::<std::result::Result<_, _>>()
             .map_err(|e| Error::AlignmentError(format!("Read error: {}", e)))?;
 
         let mut i = 0;

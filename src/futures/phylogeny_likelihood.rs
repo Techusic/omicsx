@@ -143,23 +143,23 @@ impl LikelihoodTreeBuilder {
 
     /// Get GTR rate matrix (most complex)
     fn gtr_matrix() -> Vec<Vec<f64>> {
-        // GTR uses 6 parameters: rAC, rAG, rAT, rCG, rCT, rGT
-        let rAC = 1.0;
-        let rAG = 5.0;
-        let rAT = 1.0;
-        let rCG = 1.0;
-        let rCT = 10.0;
-        let rGT = 1.0;
+        // GTR uses 6 parameters: r_ac, r_ag, r_at, r_cg, r_ct, r_gt
+        let r_ac = 1.0;
+        let r_ag = 5.0;
+        let r_at = 1.0;
+        let r_cg = 1.0;
+        let r_ct = 10.0;
+        let r_gt = 1.0;
 
         let pi = [0.25, 0.25, 0.25, 0.25]; // Uniform base frequencies
 
-        let beta = -(rAC * pi[1] + rAG * pi[2] + rAT * pi[3]) / pi[0];
+        let beta = -(r_ac * pi[1] + r_ag * pi[2] + r_at * pi[3]) / pi[0];
 
         vec![
-            vec![beta, rAC * pi[1], rAG * pi[2], rAT * pi[3]],
-            vec![rAC * pi[0], -(rAC * pi[0] + rCG * pi[2] + rCT * pi[3]) / pi[1], rCG * pi[2], rCT * pi[3]],
-            vec![rAG * pi[0], rCG * pi[1], -(rAG * pi[0] + rCG * pi[1] + rGT * pi[3]) / pi[2], rGT * pi[3]],
-            vec![rAT * pi[0], rCT * pi[1], rGT * pi[2], -(rAT * pi[0] + rCT * pi[1] + rGT * pi[2]) / pi[3]],
+            vec![beta, r_ac * pi[1], r_ag * pi[2], r_at * pi[3]],
+            vec![r_ac * pi[0], -(r_ac * pi[0] + r_cg * pi[2] + r_ct * pi[3]) / pi[1], r_cg * pi[2], r_ct * pi[3]],
+            vec![r_ag * pi[0], r_cg * pi[1], -(r_ag * pi[0] + r_cg * pi[1] + r_gt * pi[3]) / pi[2], r_gt * pi[3]],
+            vec![r_at * pi[0], r_ct * pi[1], r_gt * pi[2], -(r_at * pi[0] + r_ct * pi[1] + r_gt * pi[2]) / pi[3]],
         ]
     }
 

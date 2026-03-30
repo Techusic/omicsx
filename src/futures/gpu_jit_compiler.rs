@@ -171,7 +171,7 @@ impl GpuJitCompiler {
     }
 
     /// Compile CUDA kernel using NVIDIA NVRTC
-    fn compile_cuda_nvrtc(&self, kernel_name: &str, source: &str) -> Result<Vec<u8>> {
+    fn compile_cuda_nvrtc(&self, kernel_name: &str, _source: &str) -> Result<Vec<u8>> {
         // Build NVRTC compilation options
         let mut options = Vec::new();
 

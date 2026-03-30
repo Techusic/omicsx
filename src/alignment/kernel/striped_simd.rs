@@ -53,6 +53,7 @@ use crate::protein::AminoAcid;
 use crate::scoring::ScoringMatrix;
 use crate::error::Result;
 
+#[allow(dead_code)]
 const SIMD_WIDTH: usize = 8; // Number of i32 values in AVX2 register (256-bit / 32-bit)
 
 /// Runtime check for AVX2 availability
@@ -132,8 +133,8 @@ unsafe fn smith_waterman_striped_avx2_impl(
     }
 
     // SIMD constants
-    let extend_vec = _mm256_set1_epi32(extend_penalty);
-    let zero_vec = _mm256_setzero_si256();
+    let _extend_vec = _mm256_set1_epi32(extend_penalty);
+    let _zero_vec = _mm256_setzero_si256();
 
     // Process columns j=1..n
     for j in 1..=n {

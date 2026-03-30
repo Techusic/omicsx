@@ -44,10 +44,18 @@ src/alignment/*_old.rs
 src/futures/*_enhanced.rs
 src/alignment/*_enhanced.rs
 
+# GPU simulation backups (replaced with real hardware implementation)
+src/futures/gpu_simulated.rs
+src/futures/gpu_old.rs
+src/futures/gpu_mock.rs
+src/alignment/gpu_simulation.rs
+
 # Redundant documentation files (kept for reference in docs/)
 CHANGELOG_OLD_BACKUP.md
 README_OLD_BACKUP.md
 *_OLD_BACKUP.md
+*_DEPRECATED.md
+*_ARCHIVE.md
 *_BACKUP.md
 
 # Archived phase documentation (consolidate into ADVANCED_IMPLEMENTATION_SUMMARY.md)

@@ -145,6 +145,7 @@ pub trait GpuAlignmentKernel {
 
 /// GPU memory pool for efficient reuse
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct GpuMemoryPool {
     /// Pool of pre-allocated buffers by size
     pools: std::collections::HashMap<usize, Vec<*mut u8>>,
@@ -240,6 +241,7 @@ impl MultiGpuContext {
     }
 
     #[cfg(not(feature = "cuda"))]
+    #[allow(dead_code)]
     fn detect_cuda() -> Result<Vec<GpuDevice>> {
         Ok(vec![])
     }
@@ -252,6 +254,7 @@ impl MultiGpuContext {
     }
 
     #[cfg(not(feature = "hip"))]
+    #[allow(dead_code)]
     fn detect_hip() -> Result<Vec<GpuDevice>> {
         Ok(vec![])
     }
@@ -264,6 +267,7 @@ impl MultiGpuContext {
     }
 
     #[cfg(not(feature = "vulkan"))]
+    #[allow(dead_code)]
     fn detect_vulkan() -> Result<Vec<GpuDevice>> {
         Ok(vec![])
     }

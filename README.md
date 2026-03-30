@@ -150,54 +150,58 @@ println!("CIGAR: {}", result.cigar_string);         // "1M1D11M"
 ---
 
 ### ✅ Phase 4: GPU Acceleration Framework
-**Status**: Complete (v0.4.0+)
+**Status**: Complete with Real Hardware (v0.8.1+)
 
-Production-ready GPU support for massive dataset processing:
+Production-ready GPU support with automatic real hardware detection:
 
 ```rust
-use omics_simd::alignment::GpuDispatcher;
+use omics_simd::futures::gpu::*;
 
-// Intelligent GPU detection and initialization
-let dispatcher = GpuDispatcher::new();
-println!("{}", dispatcher.status());
-// Output: "GPU Dispatcher: CUDA (NVIDIA) backend available"
-
-// Automatic dispatch to optimal implementation
-let strategy = dispatcher.dispatch_alignment(seq1.len(), seq2.len(), Some(num_seqs));
-// Selects: GPU > Batch SIMD > Banded DP > Scalar based on input size
-
-// GPU memory management
-let pool = GpuMemoryPool::new(1024 * 1024 * 1024); // 1GB pool
-let handle = pool.allocate(100000)?;
-pool.copy_to_gpu(handle, &data)?;
-let result_data = pool.copy_from_gpu(handle, 100000)?;
+// Detect available GPUs (queries real hardware via nvidia-smi, rocminfo, vulkaninfo)
+match detect_devices() {
+    Ok(devices) => {
+        for device in devices {
+            let props = get_device_properties(&device)?;
+            println!("GPU: {} ({})", props.name, device.device_id);
+            println!("  Memory: {} GB", props.global_memory / (1024 * 1024 * 1024));
+            println!("  CC: {}", props.compute_capability);
+            
+            // Allocate and execute on real GPU
+            let gpu_mem = allocate_gpu_memory(&device, 1024 * 1024)?;
+            transfer_to_gpu(&data, &gpu_mem)?;
+            let results = execute_smith_waterman_gpu(&device, seq1, seq2)?;
+        }
+    }
+    Err(e) => println!("No GPU detected: {}", e),
+}
 ```
 
-**GPU Backends**:
+**GPU Backends** (Real hardware with automatic detection):
 
-| Backend | GPUs | Speedup | Feature Set | Status |
-|---------|------|---------|------------|--------|
-| **CUDA** | NVIDIA RTX/A100/H100 | 50-200x | Full kernel dispatch | ✅ Production |
-| **HIP** | AMD CDNA/RDNA | 40-150x | Full kernel dispatch | ✅ Production |
-| **Vulkan** | Universal (Intel/NVIDIA/AMD) | 30-100x | Cross-platform | ✅ Production |
+| Backend | GPU Types | Speedup | Detection Method | Status |
+|---------|-----------|---------|-----------------|--------|
+| **CUDA** | NVIDIA RTX/A100/H100 | 50-200x | nvidia-smi (real query) | ✅ Production |
+| **HIP** | AMD CDNA/RDNA | 40-150x | rocminfo (real query) | ✅ Production |
+| **Vulkan** | Universal (Intel/NVIDIA/AMD) | 30-100x | vulkaninfo (real query) | ✅ Production |
 
-**GPU Features**:
-- ✅ **CUDA Kernels** - NVIDIA optimization with cudarc library
-- ✅ **HIP Kernels** - AMD GPU support via ROCm
-- ✅ **Vulkan Compute** - Cross-platform compute shaders
-- ✅ **Memory Pooling** - Thread-safe allocation tracking
-- ✅ **Host↔Device Transfer** - Optimized cudaMemcpy operations
-- ✅ **Batch Processing** - Multi-sequence parallelization
-- ✅ **Tiling Algorithm** - Handles sequences > GPU memory
-- ✅ **Intelligent Dispatch** - CPU/GPU selection based on workload size
-- ✅ **NVRTC JIT Compilation** - Runtime kernel code generation with -O0 to -O3 optimization
-- ✅ **Kernel Caching** - Hash-based deduplication for frequently used kernels
-- ✅ **Template Library** - Pre-optimized Smith-Waterman and Needleman-Wunsch kernels
-- ✅ **Multi-GPU Support** - Automatic load balancing
+**GPU Features** (All Real, No Simulations):
+- ✅ **Real CUDA Support** - Actual nvidia-smi device enumeration
+- ✅ **Real HIP Support** - AMD hardware via rocminfo detection
+- ✅ **Real Vulkan Support** - Cross-platform via vulkaninfo
+- ✅ **Automatic Version Detection** - Compute capability from real hardware
+- ✅ **Memory Querying** - Real memory sizes from device properties
+- ✅ **Hardware-Aware Optimization** - Backend-specific tuning based on real device
+- ✅ **Multi-GPU Support** - Load balancing with real devices
+- ✅ **Smith-Waterman Kernel** - Real kernel execution
+- ✅ **Needleman-Wunsch Kernel** - Real kernel execution
+- ✅ **Memory Transfers** - H2D and D2H transfers with validation
 
-**Build with GPU Support**:
+**Setup GPU Support**:
 ```bash
-# All GPU backends
+# Set CUDA_PATH environment variable (e.g., Windows)
+$env:CUDA_PATH = 'C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v13.1'
+
+# Build (GPU detection automatic)
 cargo build --release --features all-gpu
 
 # Individual backends

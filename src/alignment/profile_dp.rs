@@ -47,7 +47,7 @@ impl Pssm {
         // Compute PSSM for each position
         for pos in 0..n_positions {
             let mut aa_counts = vec![0.0f64; n_aa];
-            let mut gap_count = 0.0;
+            let mut _gap_count = 0.0;
 
             // Count amino acids at this position
             for &sequence in msa {
@@ -55,7 +55,7 @@ impl Pssm {
                     let aa = (sequence[pos].min(19) as usize).min(19);
                     aa_counts[aa] += 1.0;
                 } else {
-                    gap_count += 1.0;
+                    _gap_count += 1.0;
                 }
             }
 
@@ -149,6 +149,7 @@ impl DpTable {
 
 /// Alignment traceback pointer
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 enum TracebackOp {
     Match,    // M -> M
     InsertX,  // M -> Ix

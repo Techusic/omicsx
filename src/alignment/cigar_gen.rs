@@ -261,7 +261,7 @@ pub fn traceback_to_cigar(
 }
 
 /// Generate CIGAR from HMM Viterbi path
-pub fn cigar_from_hmm_path(path: &[u8], length: usize) -> CigarString {
+pub fn cigar_from_hmm_path(path: &[u8], _length: usize) -> CigarString {
     let mut ops = Vec::new();
     let mut current_op = None;
     let mut current_len = 0u32;

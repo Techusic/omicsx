@@ -121,7 +121,7 @@ impl GpuMemoryPool {
 
     /// Defragment memory pool
     pub fn defragment(&self) -> Result<(), String> {
-        let allocations = self.allocations.lock().unwrap();
+        let _allocations = self.allocations.lock().unwrap();
         
         // Collect free blocks first
         let free_blocks_lock = self.free_blocks.lock().unwrap();
@@ -220,10 +220,8 @@ impl HostToDeviceTransfer {
     pub fn execute(&self) -> Result<(), String> {
         // In production, this would call actual GPU driver (CUDA cuMemcpyHtoD, etc.)
         // For now, validate pointers
-        unsafe {
-            if self.host_ptr.is_null() {
-                return Err("Invalid host pointer".to_string());
-            }
+        if self.host_ptr.is_null() {
+            return Err("Invalid host pointer".to_string());
         }
 
         if self.device_ptr == 0 {
@@ -265,10 +263,8 @@ impl DeviceToHostTransfer {
             return Err("Invalid device pointer".to_string());
         }
 
-        unsafe {
-            if self.host_ptr.is_null() {
-                return Err("Invalid host pointer".to_string());
-            }
+        if self.host_ptr.is_null() {
+            return Err("Invalid host pointer".to_string());
         }
 
         Ok(())
