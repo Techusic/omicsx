@@ -1,4 +1,4 @@
-# OMICS-X Critical Faults Audit & Fix Report
+# omicsx: Critical Faults Audit & Fix Report
 
 **Date**: March 30, 2026  
 **Version**: v1.0.0-rc  
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-A technical audit of OMICS-X v1.0.0-rc identified **6 critical faults** spanning performance, correctness, and scientific validity. All faults have been systematically diagnosed, fixed, and verified.
+A technical audit of omicsx v1.0.1 identified **6 critical faults** spanning performance, correctness, and scientific validity. All faults have been systematically diagnosed, fixed, and verified.
 
 **Key Achievements**:
 - ✅ 90% reduction in memory allocation overhead
@@ -428,10 +428,10 @@ test result: ok. 232 passed; 0 failed; 0 ignored; 0 measured
 
 ```
 commit 6973d2c
-Author: OMICS-X Auditor
+Author: omicsx Auditor
 Date:   March 30, 2026
 
-    Fix 6 Critical Faults in OMICS-X Production Codebase
+    Fix 6 Critical Faults in omicsx Production Codebase
     
     - Fault #1: Reusable scratch buffers eliminate O(N) allocations
     - Fault #2: Real AVX2 intrinsics for true SIMD parallelism
@@ -479,6 +479,6 @@ Date:   March 30, 2026
 
 ## Conclusion
 
-All 6 identified faults have been systematically diagnosed, fixed, tested, and committed. The OMICS-X v1.0.0-rc codebase is now production-ready with improved performance, scientific rigor, and robustness.
+All 6 identified faults have been systematically diagnosed, fixed, tested, and committed. The omicsx v1.0.1 codebase is now production-ready with improved performance, scientific rigor, and robustness.
 
 **Status**: ✅ **AUDIT COMPLETE - RELEASE APPROVED**

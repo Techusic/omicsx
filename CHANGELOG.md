@@ -177,27 +177,9 @@ use omnics_x::futures::{
 
 ## [0.8.0] - 2026-03-29 - ALL PHASES COMPLETE & PRODUCTION-READY ✅
 
-### 🎉 Major Achievement: All 5 Phases Complete
+### 🎉 Major Achievement: All Phases Complete
 
-This release marks the completion of all planned phases, bringing OMICS-X from research prototype to production-ready bioinformatics toolkit.
-
-### Added - Phase 5: Production CLI Tool
-
-**omics-x Binary** - Comprehensive command-line interface for end users
-- `omics-x align` - Pairwise/batch alignment with GPU/CPU selection
-- `omics-x msa` - Multiple sequence alignment with guide tree refinement
-- `omics-x hmm-search` - PFAM/HMM database searching with E-value filtering
-- `omics-x phylogeny` - Phylogenetic tree construction with bootstrap support
-- `omics-x benchmark` - Performance comparison across all implementations
-- `omics-x validate` - Input validation and file statistics
-
-**CLI Features**:
-- Custom argument parser (no external macro dependencies)
-- GPU device auto-detection and selection
-- Multiple output formats (SAM, BAM, JSON, XML, CIGAR, Newick, FASTA)
-- Thread pool control for parallelization
-- Scoring matrix selection and customization
-- Comprehensive help system with examples
+This release marks the completion of all planned phases, bringing omicsx from research prototype to production-ready bioinformatics library.
 
 ### Added - Advanced GPU Kernels & Memory Management
 
@@ -533,11 +515,11 @@ BAM CIGAR HMM MSA, Phylogeny
 
 ### v0.7-0.8 (Production)
 ```
-   CLI Tool (omics-x)
+  Core Library (omicsx)
       ↓
-  Complete Pipeline
-   /   |   \
-GPU  SIMD Batch
+  Complete Platform
+   /   |   \   \
+GPU  SIMD Batch Advanced
 ```
 
 ---
