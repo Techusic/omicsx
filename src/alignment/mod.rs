@@ -347,11 +347,14 @@ pub struct AlignmentResult {
     pub score: i32,
     pub aligned_seq1: String,
     pub aligned_seq2: String,
-    pub start_pos1: usize,
+    pub start_pos1: usize,  // Actual alignment start (accounting for soft-clipping)
     pub start_pos2: usize,
     pub end_pos1: usize,
     pub end_pos2: usize,
     pub cigar: String,
+    
+    /// Soft-clip information: (left_clip_len, right_clip_len) for seq1
+    pub soft_clips: (u32, u32),
 }
 
 impl AlignmentResult {
@@ -380,9 +383,14 @@ impl AlignmentResult {
             .count()
     }
 
-    /// Generate CIGAR string from aligned sequences
+    /// Generate CIGAR string from aligned sequences with SAM-compliant soft-clipping
     pub fn generate_cigar(&mut self) {
         let mut cigar = Cigar::new();
+        
+        // Add left soft-clipping if present (unaligned at start of query)
+        if self.soft_clips.0 > 0 {
+            cigar.push(self.soft_clips.0, CigarOp::SoftClip);
+        }
         
         // Use as_bytes() for ASCII sequences to avoid UTF-8 decoding overhead
         let bytes1 = self.aligned_seq1.as_bytes();
@@ -398,7 +406,12 @@ impl AlignmentResult {
                 _ => cigar.push(1, CigarOp::SeqMismatch),
             }
         }
-
+        
+        // Add right soft-clipping if present (unaligned at end of query)
+        if self.soft_clips.1 > 0 {
+            cigar.push(self.soft_clips.1, CigarOp::SoftClip);
+        }
+        
         cigar.coalesce();
         self.cigar = cigar.to_string();
     }
@@ -576,6 +589,7 @@ impl SmithWaterman {
             end_pos1: seq1.len(),
             end_pos2: seq2.len(),
             cigar: String::from(""),
+            soft_clips: (max_i as u32, (seq1.len() - max_i) as u32),
         };
 
         // Generate CIGAR string from alignment
@@ -772,6 +786,7 @@ impl NeedlemanWunsch {
             end_pos1: m,
             end_pos2: n,
             cigar: String::from(""),
+            soft_clips: (0, 0),
         };
 
         // Generate CIGAR string from alignment
@@ -884,6 +899,7 @@ mod tests {
             end_pos1: 4,
             end_pos2: 4,
             cigar: String::new(),
+            soft_clips: (0, 0),
         };
 
         // Perfect match
@@ -908,6 +924,7 @@ mod tests {
             end_pos1: 4,
             end_pos2: 5,
             cigar: String::new(),
+            soft_clips: (0, 0),
         };
 
         result.generate_cigar();
