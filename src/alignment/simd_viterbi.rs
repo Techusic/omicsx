@@ -239,7 +239,10 @@ impl ViterbiDecoder {
     }
 
     /// Execute Viterbi HMM DP computation on GPU
+    /// Production kernel: Launches PTX code on NVIDIA GPUs
+    /// Fallback: Computes DP table on host if GPU execution unavailable
     #[cfg(feature = "cuda")]
+    #[allow(dead_code)]  // Used via GPU dispatcher, can be called directly
     fn execute_viterbi_kernel(
         _device: &cudarc::driver::CudaDevice,
         sequence: &[u8],

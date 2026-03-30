@@ -569,7 +569,7 @@ impl SmithWaterman {
         self.build_result(seq1, seq2, &h, max_i, max_j)
     }
 
-    /// Build alignment result from DP matrix
+    /// Build alignment result from DP matrix with optimized CIGAR generation
     fn build_result(
         &self,
         seq1: &Protein,
@@ -582,10 +582,11 @@ impl SmithWaterman {
         let seq1_bytes = seq1.sequence();
         let seq2_bytes = seq2.sequence();
 
-        // Traceback to construct alignment
-        let (aligned1, aligned2) = self.traceback_sw(h, seq1_bytes, seq2_bytes, max_i, max_j)?;
+        // OPTIMIZATION: Use optimized traceback that generates CIGAR directly during traceback
+        // This eliminates the redundant two-step process (build strings → iterate for CIGAR)
+        let (aligned1, aligned2, cigar) = self.traceback_sw_with_cigar(h, seq1_bytes, seq2_bytes, max_i, max_j)?;
 
-        let mut result = AlignmentResult {
+        let result = AlignmentResult {
             score,
             aligned_seq1: aligned1,
             aligned_seq2: aligned2,
@@ -593,16 +594,92 @@ impl SmithWaterman {
             start_pos2: max_j,
             end_pos1: seq1.len(),
             end_pos2: seq2.len(),
-            cigar: String::from(""),
+            cigar, // Already generated during traceback - no second iteration needed!
             soft_clips: (max_i as u32, (seq1.len() - max_i) as u32),
         };
-
-        // Generate CIGAR string from alignment
-        result.generate_cigar();
 
         Ok(result)
     }
 
+    /// Optimized traceback that generates CIGAR during alignment (eliminates redundant iteration)
+    /// Returns: (aligned_seq1, aligned_seq2, cigar_string)
+    /// This avoids the two-step process of building strings then iterating to generate CIGAR
+    fn traceback_sw_with_cigar(
+        &self,
+        h: &[Vec<i32>],
+        seq1: &[AminoAcid],
+        seq2: &[AminoAcid],
+        mut i: usize,
+        mut j: usize,
+    ) -> Result<(String, String, String)> {
+        let mut aligned1 = String::new();
+        let mut aligned2 = String::new();
+        let mut cigar_ops = Vec::new(); // Cache CIGAR operations during traceback
+
+        while i > 0 && j > 0 && h[i][j] > 0 {
+            let match_score = self.matrix.score(seq1[i - 1], seq2[j - 1]);
+            let diagonal = h[i - 1][j - 1] + match_score;
+            let up = h[i - 1][j] + self.penalty.extend;
+            let _left = h[i][j - 1] + self.penalty.extend;
+
+            if h[i][j] == diagonal {
+                let c1 = seq1[i - 1].to_code() as char;
+                let c2 = seq2[j - 1].to_code() as char;
+                aligned1.push(c1);
+                aligned2.push(c2);
+                
+                // Cache CIGAR operation directly during traceback
+                let op = if c1 == c2 {
+                    CigarOp::SeqMatch
+                } else {
+                    CigarOp::SeqMismatch
+                };
+                cigar_ops.push((op, 1u32));
+                i -= 1;
+                j -= 1;
+            } else if h[i][j] == up {
+                aligned1.push(seq1[i - 1].to_code());
+                aligned2.push('-');
+                cigar_ops.push((CigarOp::Insertion, 1));
+                i -= 1;
+            } else {
+                aligned1.push('-');
+                aligned2.push(seq2[j - 1].to_code());
+                cigar_ops.push((CigarOp::Deletion, 1));
+                j -= 1;
+            }
+        }
+
+        // Reverse collected data (built in reverse during traceback)
+        let aligned1_str: String = aligned1.chars().rev().collect();
+        let aligned2_str: String = aligned2.chars().rev().collect();
+        cigar_ops.reverse();
+        
+        // Generate CIGAR string from cached operations (coalesce consecutive same ops)
+        let mut cigar = Cigar::new();
+        if !cigar_ops.is_empty() {
+            let mut current_op = cigar_ops[0].0;
+            let mut current_len = cigar_ops[0].1;
+            
+            for &(op, len) in &cigar_ops[1..] {
+                if op == current_op {
+                    current_len += len;
+                } else {
+                    cigar.push(current_len, current_op);
+                    current_op = op;
+                    current_len = len;
+                }
+            }
+            cigar.push(current_len, current_op);
+        }
+        
+        let cigar_str = cigar.to_string();
+        Ok((aligned1_str, aligned2_str, cigar_str))
+    }
+
+    /// Legacy traceback method (kept for backward compatibility)
+    /// Use traceback_sw_with_cigar for optimized CIGAR generation during traceback
+    #[allow(dead_code)]
     fn traceback_sw(
         &self,
         h: &[Vec<i32>],
