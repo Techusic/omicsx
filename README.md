@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Rust](https://img.shields.io/badge/rust-1.94+-orange.svg?style=flat-square&logo=rust)
-![License](https://img.shields.io/badge/license-MIT%2FCommercial-blue.svg?style=flat-square)
+![License](https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue.svg?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-247%2F247-brightgreen.svg?style=flat-square)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg?style=flat-square)
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg?style=flat-square)
@@ -734,17 +734,17 @@ Contributions welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Testing requirements
 - Documentation expectations
 - Pull request process
-- License compliance (MIT/Commercial dual license)
+- License compliance (Apache-2.0 OR MIT dual license)
 
 ---
 
 ## 📄 License
 
-Dual licensed under MIT and Commercial Terms:
-- **MIT**: Open source, free for academic/research use
-- **Commercial**: Enterprise license available for proprietary deployment
+Dual licensed under Apache License 2.0 and MIT Terms:
+- **Apache-2.0**: Open source, free for academic/research use with explicit patent protection
+- **MIT**: Permissive open-source license, free for any use
 
-See LICENSE.md for full terms.
+Choose whichever license works best for your project. See LICENSE for full terms.
 
 ---
 
@@ -782,7 +782,7 @@ OMICS-X was designed for **production bioinformatics research**. Publications us
   author={Maheshwari, Raghav},
   year={2026},
   url={https://github.com/techusic/omicsx},
-  license={MIT / Commercial}
+  license={Apache-2.0 OR MIT}
 }
 ```
 

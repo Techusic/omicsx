@@ -369,7 +369,7 @@ Output demonstrates:
 For issues or enhancements:
 - GitHub Issues: OMICS-SIMD repository
 - Email: raghavmkota@gmail.com
-- License: MIT
+- License: Apache-2.0 OR MIT
 
 ---
 
