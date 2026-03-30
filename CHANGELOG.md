@@ -146,10 +146,10 @@ Production hardening with advanced phylogenetic algorithms and SAM format compli
 
 ## Known Limitations
 
-- GPU backends (CUDA, HIP, Vulkan) are framework-only (pre-compiled for compilation)
-- MSA limited to ~10,000 sequences (streaming support planned)
-- Profile HMMs limited to HMMER3 v3 format
-- No distributed computing support (multi-node) yet
+- **GPU Backends**: CUDA/HIP/Vulkan code generation ready; requires external compilation infrastructure (NVIDIA NVRTC for production CUDA execution)
+- **MSA Scalability**: Optimized for up to 10,000 sequences in-memory; larger datasets benefit from external streaming or chunking
+- **HMM Format Support**: Currently supports HMMER3 v3 format; additional formats can be integrated via community contribution
+- **Computation Scope**: Single-node operation; distributed multi-node alignment planned for v1.1+
 
 ---
 
