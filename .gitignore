@@ -44,6 +44,34 @@ src/alignment/*_old.rs
 src/futures/*_enhanced.rs
 src/alignment/*_enhanced.rs
 
+# Redundant documentation files (kept for reference in docs/)
+CHANGELOG_OLD_BACKUP.md
+README_OLD_BACKUP.md
+*_OLD_BACKUP.md
+*_BACKUP.md
+
+# Archived phase documentation (consolidate into ADVANCED_IMPLEMENTATION_SUMMARY.md)
+PHASE1_IMPLEMENTATION.md
+PHASE1_STATUS.md
+PHASE2_COMPLETION_REPORT.md
+PHASE3_ENHANCEMENT_COMPLETION.md
+PHASE3_ENHANCEMENT_PLAN.md
+PHASE3_FINAL_COMPLETION.md
+PHASE4_GPU_PLAN.md
+PHASE4_PROGRESS_REPORT.md
+
+# Duplicate integration summaries (use ST_JUDE_BRIDGE.md as canonical)
+STJUDE_EXECUTIVE_SUMMARY.md
+ST_JUDE_INTEGRATION_SUMMARY.md
+
+# Redundant enhancement/completion documents
+GPU_JIT_COMPILER_ENHANCED.md
+IMPLEMENTATION_SUMMARY.md
+COMPLETION_REPORT.md
+ENHANCEMENT_ROADMAP.md
+ROADMAP_ENHANCEMENTS.md
+SESSION_SUMMARY.md
+
 # Generated documentation
 /doc/
 docs/_build/

@@ -15,9 +15,8 @@
 
 ### For Developers
 1. Setup: [DEVELOPMENT.md](DEVELOPMENT.md) - Build & environment
-2. Architecture: [PHASE1_IMPLEMENTATION.md](PHASE1_IMPLEMENTATION.md) - Deep dive
-3. Roadmap: [ENHANCEMENT_ROADMAP.md](ENHANCEMENT_ROADMAP.md) - Future plans
-4. Contribute: [CONTRIBUTING.md](CONTRIBUTING.md) - How to help
+2. Architecture: [ADVANCED_IMPLEMENTATION_SUMMARY.md](ADVANCED_IMPLEMENTATION_SUMMARY.md) - Technical design
+3. Contribute: [CONTRIBUTING.md](CONTRIBUTING.md) - How to help
 
 ### For DevOps/Integration
 1. GPU Setup: [GPU.md](GPU.md) - Hardware setup
@@ -48,17 +47,14 @@
 
 | Document | Purpose | Audience | Length |
 |----------|---------|----------|--------|
-| [PHASE1_IMPLEMENTATION.md](PHASE1_IMPLEMENTATION.md) | Phase 1 GPU architecture | Advanced Developers | 📖 20 min |
-| [ENHANCEMENT_ROADMAP.md](ENHANCEMENT_ROADMAP.md) | Multi-phase enhancement plan | Project Managers & Architects | 📖 30 min |
-| [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) | Phase 1 completion summary | Technical Leads | 📖 15 min |
+| [ADVANCED_IMPLEMENTATION_SUMMARY.md](ADVANCED_IMPLEMENTATION_SUMMARY.md) | Complete technical architecture | Advanced Developers | 📖 30 min |
+| [CRITICAL_FAULTS_AUDIT_REPORT.md](CRITICAL_FAULTS_AUDIT_REPORT.md) | Production issue resolution | Technical Leads | 📖 20 min |
 
-### Project Management
+### Project Status
 
 | Document | Purpose | Audience | Length |
 |----------|---------|----------|--------|
-| [COMPLETION_REPORT.md](COMPLETION_REPORT.md) | Final project status | Stakeholders | 📖 20 min |
-| [SESSION_SUMMARY.md](SESSION_SUMMARY.md) | Development session notes | Team | 📖 15 min |
-| [ROADMAP_ENHANCEMENTS.md](ROADMAP_ENHANCEMENTS.md) | Enhancement tracking | Project Manager | 📖 15 min |
+| [PROJECT_COMPLETION_REPORT.md](PROJECT_COMPLETION_REPORT.md) | Final project status & metrics | Stakeholders | 📖 20 min |
 
 ### Community
 
@@ -67,16 +63,6 @@
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute | Contributors | 📖 10 min |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community guidelines | Everyone | 📖 5 min |
 | [SECURITY.md](SECURITY.md) | Security practices | Security Team | 📖 5 min |
-
-### Phase-Specific Reports (Historical)
-
-| Document | Status | Content |
-|----------|--------|---------|
-| [PHASE_1_STATUS.md](PHASE_1_STATUS.md) | ✅ Complete | Phase 1 GPU preparation |
-| [PHASE2_COMPLETION_REPORT.md](PHASE2_COMPLETION_REPORT.md) | ✅ Complete | HMM baseline implementation |
-| [PHASE3_ENHANCEMENT_PLAN.md](PHASE3_ENHANCEMENT_PLAN.md) | ✅ Draft | MSA & phylogeny design |
-| [PHASE4_GPU_PLAN.md](PHASE4_GPU_PLAN.md) | ✅ Draft | GPU kernel specification |
-| [PHASE4_PROGRESS_REPORT.md](PHASE4_PROGRESS_REPORT.md) | ✅ Draft | GPU development progress |
 
 ---
 
