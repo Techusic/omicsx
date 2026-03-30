@@ -384,7 +384,13 @@ impl AlignmentResult {
     pub fn generate_cigar(&mut self) {
         let mut cigar = Cigar::new();
         
-        for (a, b) in self.aligned_seq1.chars().zip(self.aligned_seq2.chars()) {
+        // Use as_bytes() for ASCII sequences to avoid UTF-8 decoding overhead
+        let bytes1 = self.aligned_seq1.as_bytes();
+        let bytes2 = self.aligned_seq2.as_bytes();
+        
+        for i in 0..bytes1.len().min(bytes2.len()) {
+            let a = bytes1[i] as char;
+            let b = bytes2[i] as char;
             match (a, b) {
                 ('-', _) => cigar.push(1, CigarOp::Deletion),
                 (_, '-') => cigar.push(1, CigarOp::Insertion),
@@ -596,22 +602,23 @@ impl SmithWaterman {
             let _left = h[i][j - 1] + self.penalty.extend;
 
             if h[i][j] == diagonal {
-                aligned1.insert(0, seq1[i - 1].to_code());
-                aligned2.insert(0, seq2[j - 1].to_code());
+                aligned1.push(seq1[i - 1].to_code());
+                aligned2.push(seq2[j - 1].to_code());
                 i -= 1;
                 j -= 1;
             } else if h[i][j] == up {
-                aligned1.insert(0, seq1[i - 1].to_code());
-                aligned2.insert(0, '-');
+                aligned1.push(seq1[i - 1].to_code());
+                aligned2.push('-');
                 i -= 1;
             } else {
-                aligned1.insert(0, '-');
-                aligned2.insert(0, seq2[j - 1].to_code());
+                aligned1.push('-');
+                aligned2.push(seq2[j - 1].to_code());
                 j -= 1;
             }
         }
 
-        Ok((aligned1, aligned2))
+        // Reverse to get correct order (built in reverse)
+        Ok((aligned1.chars().rev().collect(), aligned2.chars().rev().collect()))
     }
 }
 
@@ -792,31 +799,31 @@ impl NeedlemanWunsch {
                 let _left = h[i][j - 1] + self.penalty.extend;
 
                 if h[i][j] == diagonal {
-                    aligned1.insert(0, seq1[i - 1].to_code());
-                    aligned2.insert(0, seq2[j - 1].to_code());
+                    aligned1.push(seq1[i - 1].to_code());
+                    aligned2.push(seq2[j - 1].to_code());
                     i -= 1;
                     j -= 1;
                     continue;
                 } else if h[i][j] == up {
-                    aligned1.insert(0, seq1[i - 1].to_code());
-                    aligned2.insert(0, '-');
+                    aligned1.push(seq1[i - 1].to_code());
+                    aligned2.push('-');
                     i -= 1;
                     continue;
                 }
             }
 
             if j > 0 {
-                aligned1.insert(0, '-');
-                aligned2.insert(0, seq2[j - 1].to_code());
+                aligned1.push('-');
+                aligned2.push(seq2[j - 1].to_code());
                 j -= 1;
             } else if i > 0 {
-                aligned1.insert(0, seq1[i - 1].to_code());
-                aligned2.insert(0, '-');
+                aligned1.push(seq1[i - 1].to_code());
+                aligned2.push('-');
                 i -= 1;
             }
         }
 
-        Ok((aligned1, aligned2))
+        Ok((aligned1.chars().rev().collect(), aligned2.chars().rev().collect()))
     }
 }
 

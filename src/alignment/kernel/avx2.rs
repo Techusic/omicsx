@@ -120,6 +120,16 @@ unsafe fn smith_waterman_avx2_optimized(
     let extend_vec = _mm256_set1_epi32(extend_penalty);
     let zero_vec = _mm256_setzero_si256();
 
+    // Hoist batch allocations out of loop to avoid repeated allocations
+    // (One allocation per anti-diagonal instead of per batch)
+    let mut batch_i = vec![0usize; SIMD_WIDTH];
+    let mut batch_j = vec![0usize; SIMD_WIDTH];
+    let mut diag_vals = vec![0i32; SIMD_WIDTH];
+    let mut up_vals = vec![0i32; SIMD_WIDTH];
+    let mut left_vals = vec![0i32; SIMD_WIDTH];
+    let mut scores_vals = vec![0i32; SIMD_WIDTH];
+    let mut results = vec![0i32; SIMD_WIDTH];
+
     // Process anti-diagonals: k ranges from 1 to m+n
     // Anti-diagonal k contains all cells (i,j) where i+j = k
     for k in 1..=(m + n) {
@@ -131,14 +141,7 @@ unsafe fn smith_waterman_avx2_optimized(
             continue; // No cells on this diagonal
         }
 
-        // Process cells in batches of SIMD_WIDTH
-        let mut batch_i = vec![0usize; SIMD_WIDTH];
-        let mut batch_j = vec![0usize; SIMD_WIDTH];
-        let mut diag_vals = vec![0i32; SIMD_WIDTH];
-        let mut up_vals = vec![0i32; SIMD_WIDTH];
-        let mut left_vals = vec![0i32; SIMD_WIDTH];
-        let mut scores_vals = vec![0i32; SIMD_WIDTH];
-        let mut results = vec![0i32; SIMD_WIDTH];
+        // Process cells in batches of SIMD_WIDTH (reuse pre-allocated vectors)
 
         for batch_start in (i_start..=i_end).step_by(SIMD_WIDTH) {
             let batch_end = std::cmp::min(batch_start + SIMD_WIDTH, i_end + 1);
