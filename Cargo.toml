@@ -17,6 +17,7 @@ log = "0.4"
 criterion = { version = "0.5", features = ["html_reports"] }
 # GPU acceleration (optional - only enabled with features)
 cudarc = { version = "0.11", optional = true, features = ["std"] }
+regex = "1.12.3"
 # hip-sys = { version = "0.1", optional = true }
 # ash = { version = "0.37", optional = true }
 # gpu-alloc = { version = "0.6", optional = true }
