@@ -1,6 +1,6 @@
 [package]
 name = "omics-simd"
-version = "0.8.1"
+version = "1.0.1"
 edition = "2021"
 authors = ["Raghav Maheshwari <raghavmkota@gmail.com>"]
 description = "omicsx: SIMD-accelerated sequence alignment and bioinformatics analysis for petabyte-scale genomic data"

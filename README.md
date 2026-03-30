@@ -150,7 +150,7 @@ println!("CIGAR: {}", result.cigar_string);         // "1M1D11M"
 ---
 
 ### ✅ Phase 4: GPU Acceleration Framework
-**Status**: Complete with Real Hardware (v0.8.1+)
+**Status**: Complete with Real Hardware (v1.0.1+)
 
 Production-ready GPU support with automatic real hardware detection:
 
@@ -281,7 +281,7 @@ omics-x validate --file input.fasta --stats
 ---
 
 ### ✅ Phase 6: St. Jude Ecosystem Integration
-**Status**: Complete (v0.8.1+)
+**Status**: Complete (v1.0.1+)
 
 Seamless interoperability with St. Jude Children's Research Hospital omics platform for pediatric cancer research:
 
@@ -437,7 +437,7 @@ Performance vs Dataset Size
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     OMICS-X v0.8.1                      │
+│                     OMICS-X v1.0.1                      │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
 │       ┌──────────────  CLI Layer ────────────┐          │
@@ -803,5 +803,5 @@ OMICS-X was designed for **production bioinformatics research**. Publications us
 ---
 
 **Last Updated**: March 29, 2026  
-**Version**: 0.8.1 (Production Ready)  
+**Version**: 1.0.1 (Production Ready)  
 **Status**: 🟢 Production Ready

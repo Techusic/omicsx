@@ -4,7 +4,7 @@
 **Email**: raghavmkota@gmail.com  
 **Repository**: https://github.com/techusic/omicsx
 
-Complete development documentation for OMICS-X v0.8.1 (production-ready bioinformatics toolkit with SIMD & GPU acceleration).
+Complete development documentation for OMICS-X v1.0.1 (production-ready bioinformatics toolkit with SIMD & GPU acceleration).
 
 ## Quick Start
 

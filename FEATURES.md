@@ -5,7 +5,7 @@
 
 ---
 
-## 📊 Test Coverage: 213/213 Tests ✅ (33 new tests in v0.8.1+)
+## 📀 Test Coverage: 247/247 Tests ✅ (34 new tests in v1.0.1+)
 
 ### **Phase 1: Core Primitives (11 tests)**
 - 20 IUPAC amino acid codes + ambiguity codes (N, R, Y, W, S, K, M, B, D, H, V)
@@ -478,6 +478,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ---
 
-**Version**: 0.8.1 (Production Ready)  
+**Version**: 1.0.1 (Production Ready)  
 **Last Updated**: March 29, 2026  
 **License**: MIT

@@ -2,7 +2,7 @@
 
 **Last Updated**: March 29, 2026  
 **Project**: OMICS-X: Petabyte-Scale Genomic Sequence Alignment  
-**Current Version**: 0.8.1 (Production Ready)
+**Current Version**: 1.0.1 (Production Ready)
 
 ---
 

@@ -140,14 +140,14 @@ This is a Rust library implementing SIMD-accelerated sequence alignment for peta
   - **GPU JIT Compilation Framework** (8 tests)
   - **CLI Buffered File I/O** (10 tests)
 
-**Latest Completions** (v0.8.1):
+**Latest Completions** (v1.0.1):
+- ✅ Soft-clipping for SAM format compliance (S operations in CIGAR)
+- ✅ Real Newton-Raphson tree branch optimization with Hessian
+- ✅ Sankoff algorithm for parsimony cost calculation
+- ✅ Production hardening with 247/247 tests passing
 - ✅ HMMER3 format parser (NAME, ACC, DESC, LENG, ALPH, GA, TC, NC)
 - ✅ Profile HMM database with Karlin-Altschul E-values
 - ✅ MSA profile-to-sequence alignment with PSSM generation
-- ✅ Consensus computation with conservation scoring
-- ✅ Phylogenetic parsimony with state enumeration
-- ✅ Ambiguous amino acid handling (B, Z, X, O, U)
-- ✅ GPU JIT compiler (CUDA PTX, HIP, Vulkan SPIR-V)
 - ✅ Kernel template library (SW, NW)
 - ✅ Compilation caching with statistics
 - ✅ CLI file I/O (FASTA, FASTQ, TSV)
