@@ -530,7 +530,7 @@ impl StJudeBridge {
 
     /// Convert OMICS-SIMD AlignmentResult to St. Jude alignment
     /// Convert alignment result to St. Jude format with accurate statistical scoring
-    /// Uses model-specific Karlin-Altschul parameters for proper bit score calculation
+    /// Uses model-specific Karlin-Altschul parameters and actual database size for proper E-value calculation (Fault #4 fix)
     pub fn to_st_jude_alignment(
         &self,
         query_id: &str,
@@ -540,6 +540,7 @@ impl StJudeBridge {
         query_string: &str,
         subject_string: &str,
         karlin_params: &KarlinParameters,
+        database_size: u64,  // Fault #4 fix: Accept actual database size instead of hardcoding
     ) -> Result<StJudeAlignment> {
         // Calculate alignment metrics from CIGAR
         let alignment_length = cigar.query_length();
@@ -568,10 +569,9 @@ impl StJudeBridge {
         // Calculate bit score using Karlin-Altschul parameters from model
         let bit_score = karlin_params.bit_score(score as f64);
         
-        // Calculate E-value assuming standard database size of 1 billion sequences
-        // (this should ideally be passed in for the actual database size)
-        let db_size = 1_000_000_000u64; // 1 billion is typical for protein DB
-        let evalue = karlin_params.evalue(bit_score, db_size);
+        // Calculate E-value using actual database size provided by caller (Fault #4 fix)
+        // This is scientifically accurate - database size affects E-value significance
+        let evalue = karlin_params.evalue(bit_score, database_size);
 
         Ok(StJudeAlignment {
             query_id: query_id.to_string(),
@@ -756,6 +756,7 @@ mod tests {
             "ACDEF",
             "ACGEF",
             &karlin,
+            1_000_000_000, // database size: 1 billion sequences (typical for protein DB)
         )?;
 
         assert_eq!(alignment.query_id, "query1");

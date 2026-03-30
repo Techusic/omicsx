@@ -12,7 +12,6 @@
 //! - **Optimization Levels**: -O0 through -O3 with fast math support
 
 use std::collections::HashMap;
-use std::path::PathBuf;
 use crate::error::Result;
 
 /// GPU backend target

@@ -2,7 +2,6 @@
 //! Replaces placeholder with real state transition logic
 
 use std::collections::{HashMap, HashSet};
-use crate::error::Result;
 
 /// Character state for parsimony scoring
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
