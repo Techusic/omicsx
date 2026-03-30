@@ -36,6 +36,7 @@ pub mod gpu_jit_compiler;
 pub mod cli_file_io;
 pub mod phylogeny_likelihood;
 pub mod st_jude_bridge;
+pub mod distributed;
 
 // Import and re-export specific items to avoid glob conflicts
 pub use formats::{BlastJson, BlastTabular, BlastXml, FormatError, Gff3Record};
@@ -60,5 +61,9 @@ pub use phylogeny_likelihood::{LikelihoodTreeBuilder, SubstitutionModel, GTR, Ki
 pub use st_jude_bridge::{
     BridgeConfig, ParsimonyState, SequenceType, StJudeAlignment, StJudeAminoAcid, StJudeBridge,
     StJudeScoringMatrix, StJudeSequence,
+};
+pub use distributed::{
+    AlignmentResultRecord, AlignmentTask, DistributedCoordinator, DistributionStats, NodeId,
+    NodeStats, NodeStatus, TaskQueue,
 };
 
