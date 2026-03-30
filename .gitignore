@@ -32,6 +32,7 @@ Cargo.lock
 *.tmp
 *.log
 test_output.txt
+test_*.txt
 *.bak
 *.backup
 *.swp~
