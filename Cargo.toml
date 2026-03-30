@@ -1,5 +1,5 @@
 [package]
-name = "omics-simd"
+name = "omicsx"
 version = "1.0.1"
 edition = "2021"
 authors = ["Raghav Maheshwari <raghavmkota@gmail.com>"]
@@ -8,7 +8,7 @@ license = "MIT OR Commercial"
 readme = "README.md"
 repository = "https://github.com/techusic/omicsx"
 homepage = "https://github.com/techusic/omicsx"
-documentation = "https://docs.rs/omics-simd"
+documentation = "https://docs.rs/omicsx"
 keywords = ["bioinformatics", "simd", "alignment", "genomics", "cuda"]
 categories = ["algorithms", "biology", "data-structures", "science"]
 
