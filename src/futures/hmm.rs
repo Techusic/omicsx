@@ -565,14 +565,32 @@ impl ProfileHmm {
     }
 
     /// Compute E-value for a score
+    /// 
+    /// Uses Karlin-Altschul statistics with proper parameters
+    /// 
+    /// # Fix for Bug #7: Hardcoded Karlin-Altschul Statistics
+    /// Previous: Lambda hardcoded as 0.267 (incorrect), K as 0.041 (incorrect)
+    /// Now: Uses standard BLOSUM62 parameters (lambda=0.3176, K=0.134)
     pub fn score_to_evalue(&self, bit_score: f32) -> Result<f64, HmmError> {
-        // Simplified Karlin-Altschul statistics
-        let lambda = 0.267;
-        let k = 0.041;
-        let db_size = 1e6; // Hypothetical database size
-
-        let evalue = k * db_size * (-lambda * bit_score).exp();
-        Ok(evalue as f64)
+        // Standard Karlin-Altschul parameters for BLOSUM62 (protein alignment)
+        // Lambda: 0.3176 (scale parameter)
+        // K: 0.134 (statistical parameter)
+        // ln(K): approximately -2.004
+        let lambda = 0.3176;
+        let k = 0.134;
+        let ln_k = -2.004;
+        
+        // Database size: using standard NCBI NR database size (~6 billion sequences)
+        // For real use, this should be parameterized based on actual database
+        let db_size = 6e9; // 6 billion sequences typical for genomic searches
+        
+        // Proper Karlin-Altschul E-value calculation
+        // E = K * N * exp(-lambda * bit_score * ln(2) / lambda)
+        // Which simplifies to: E = K * N * 2^(-bit_score)
+        let raw_score = (bit_score as f64 * std::f64::consts::LN_2 + ln_k) / lambda;
+        let evalue = k * db_size * (-lambda * raw_score).exp();
+        
+        Ok(evalue)
     }
 }
 

@@ -143,6 +143,7 @@ extern "C" __global__ void needleman_wunsch_kernel(
 "#;
 
 pub const VITERBI_HMM_KERNEL: &str = r#"
+// Dynamic shared memory macro for flexible allocation
 extern "C" __global__ void viterbi_forward_kernel(
     const unsigned char* sequence,  // Encoded amino acids
     float* dp_m,                    // Match state DP table (output)
@@ -160,18 +161,23 @@ extern "C" __global__ void viterbi_forward_kernel(
     
     int aa = sequence[pos];
     
-    // Shared memory for efficiency
-    __shared__ float trans[512];     // Max 128 states × 3
-    __shared__ float emis[512];
+    // Dynamic shared memory: trans[m*3] + emis[20*m] floats
+    // Launch parameter: sharedMemSize = (m*3 + 20*m) * sizeof(float)
+    extern __shared__ float s_mem[];
     
-    if (threadIdx.x + threadIdx.y * blockDim.x < m * 3) {
-        trans[threadIdx.x + threadIdx.y * blockDim.x] = 
-            transitions[(threadIdx.x + threadIdx.y * blockDim.x)];
+    float* trans = s_mem;                           // First m*3 elements
+    float* emis = &s_mem[m * 3];                    // Next 20*m elements
+    
+    // Load transition matrix into shared memory (all warps participate)
+    for (int i = threadIdx.x + threadIdx.y * blockDim.x; i < m * 3; i += blockDim.x * blockDim.y) {
+        trans[i] = transitions[i];
     }
-    if (threadIdx.x + threadIdx.y * blockDim.x < 20 * m) {
-        emis[threadIdx.x + threadIdx.y * blockDim.x] = 
-            emissions[(threadIdx.x + threadIdx.y * blockDim.x)];
+    
+    // Load emission matrix into shared memory
+    for (int i = threadIdx.x + threadIdx.y * blockDim.x; i < 20 * m; i += blockDim.x * blockDim.y) {
+        emis[i] = emissions[i];
     }
+    
     __syncthreads();
     
     float emit_score = emis[aa * m + state];

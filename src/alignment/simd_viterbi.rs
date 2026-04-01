@@ -740,9 +740,11 @@ impl ViterbiDecoder {
     fn step_neon(&mut self, pos: usize, aa: u8, m: usize, model: &HmmerModel) {
         let aa_idx = (aa as usize).min(19);
 
-        // Create temp vectors for results
-        let mut temp_m = vec![f64::NEG_INFINITY; m + 1];
-        let mut temp_backptr_m = vec![0u8; m + 1];
+        // FIX for Bug #1: Use reusable scratch buffers instead of allocating on every call
+        // Clear scratch buffers for this iteration
+        self.scratch_m.fill(f64::NEG_INFINITY);
+        self.scratch_i.fill(f64::NEG_INFINITY);
+        self.scratch_d.fill(f64::NEG_INFINITY);
 
         // Read-only phase: collect all data needed
         {
@@ -770,8 +772,8 @@ impl ViterbiDecoder {
                         let score_d = prev_d.get(i).copied().unwrap_or(f64::NEG_INFINITY) + trans_dm + emission;
 
                         let max_score = score_m.max(score_i).max(score_d);
-                        temp_m[i] = max_score;
-                        temp_backptr_m[i] = if max_score == score_m {
+                        self.scratch_m[i] = max_score;
+                        self.backptr_m[i] = if max_score == score_m {
                             0
                         } else if max_score == score_i {
                             1
@@ -835,25 +837,26 @@ impl ViterbiDecoder {
                     };
                 }
 
-                // Store all 4 results in temp
-                temp_m[k] = max_scores[0];
-                temp_m[k + 1] = max_scores[1];
-                temp_m[k + 2] = max_scores[2];
-                temp_m[k + 3] = max_scores[3];
+                // Store all 4 results in scratch buffers
+                self.scratch_m[k] = max_scores[0];
+                self.scratch_m[k + 1] = max_scores[1];
+                self.scratch_m[k + 2] = max_scores[2];
+                self.scratch_m[k + 3] = max_scores[3];
 
-                temp_backptr_m[k] = backptrs[0];
-                temp_backptr_m[k + 1] = backptrs[1];
-                temp_backptr_m[k + 2] = backptrs[2];
-                temp_backptr_m[k + 3] = backptrs[3];
+                self.backptr_m[k] = backptrs[0];
+                self.backptr_m[k + 1] = backptrs[1];
+                self.backptr_m[k + 2] = backptrs[2];
+                self.backptr_m[k + 3] = backptrs[3];
 
                 k += 4;
             }
         } // References drop here
 
-        // Update match states
-        self.dp_m[1..=m.min(temp_m.len() - 1)].copy_from_slice(&temp_m[1..=m.min(temp_m.len() - 1)]);
-        self.backptr_m[1..=m.min(temp_backptr_m.len() - 1)]
-            .copy_from_slice(&temp_backptr_m[1..=m.min(temp_backptr_m.len() - 1)]);
+        // FIX for Bug #1: Copy from scratch buffers to dp tables
+        // (scratch buffers were reused instead of allocating new ones)
+        self.dp_m[1..=m.min(self.scratch_m.len() - 1)].copy_from_slice(&self.scratch_m[1..=m.min(self.scratch_m.len() - 1)]);
+        self.backptr_m[1..=m.min(self.scratch_m.len() - 1)]
+            .copy_from_slice(&self.backptr_m[1..=m.min(self.scratch_m.len() - 1)]);
 
         // Insert states - can be scalar (less hot path)
         for k in 0..=m {
