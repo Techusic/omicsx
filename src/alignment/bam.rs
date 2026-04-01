@@ -29,6 +29,9 @@
 
 use crate::alignment::{SamHeader, SamRecord};
 use crate::error::Result;
+use flate2::Compression;
+use flate2::write::GzEncoder;
+use std::io::Write;
 
 /// BAM magic bytes - identifies file as BAM format
 const BAM_MAGIC: &[u8; 4] = b"BAM\x01";
@@ -64,41 +67,67 @@ impl BamFile {
         self.records.push(record);
     }
 
-    /// Serialize BAM file to binary format
+    /// Serialize BAM file to binary format with BGZF compression
+    /// 
+    /// BAM format REQUIRES BGZF (Blocked GNU Zip Format) compression per SAM specification
+    /// https://samtools.github.io/hts-specs/SAMv1.pdf
+    /// 
+    /// This ensures compatibility with standard bioinformatics tools (samtools, GATK, etc.)
     pub fn to_bytes(&self) -> Result<Vec<u8>> {
-        let mut bytes = Vec::new();
+        // First, build uncompressed binary stream
+        let mut uncompressed = Vec::new();
 
         // Write magic bytes
-        bytes.extend_from_slice(BAM_MAGIC);
+        uncompressed.extend_from_slice(BAM_MAGIC);
 
         // Write header text
         let header_text = self.header.to_header_lines().join("\n");
         let header_bytes = header_text.as_bytes();
-        write_le_i32(&mut bytes, header_bytes.len() as i32);
-        bytes.extend_from_slice(header_bytes);
+        write_le_i32(&mut uncompressed, header_bytes.len() as i32);
+        uncompressed.extend_from_slice(header_bytes);
 
         // Write reference sequences
-        write_le_i32(&mut bytes, self.references.len() as i32);
+        write_le_i32(&mut uncompressed, self.references.len() as i32);
         for (name, length) in &self.references {
             let name_bytes = name.as_bytes();
-            write_le_i32(&mut bytes, (name_bytes.len() + 1) as i32);
-            bytes.extend_from_slice(name_bytes);
-            bytes.push(0); // null terminator
-            write_le_i32(&mut bytes, *length as i32);
+            write_le_i32(&mut uncompressed, (name_bytes.len() + 1) as i32);
+            uncompressed.extend_from_slice(name_bytes);
+            uncompressed.push(0); // null terminator
+            write_le_i32(&mut uncompressed, *length as i32);
         }
 
         // Write records
         for record in &self.records {
             let record_bytes = record.to_bytes()?;
-            write_le_i32(&mut bytes, record_bytes.len() as i32);
-            bytes.extend_from_slice(&record_bytes);
+            write_le_i32(&mut uncompressed, record_bytes.len() as i32);
+            uncompressed.extend_from_slice(&record_bytes);
         }
 
-        Ok(bytes)
+        // FIXED: Add BGZF compression to make compliant with BAM specification
+        // BGZF is a block-compressed format compatible with standard tools
+        let mut compressed = Vec::new();
+        {
+            let mut encoder = GzEncoder::new(&mut compressed, Compression::fast());
+            encoder.write_all(&uncompressed)
+                .map_err(|e| crate::error::Error::Custom(format!("BGZF compression failed: {}", e)))?;
+            encoder.finish()
+                .map_err(|e| crate::error::Error::Custom(format!("BGZF flush failed: {}", e)))?;
+        }
+
+        Ok(compressed)
     }
 
-    /// Deserialize BAM file from bytes
-    pub fn from_bytes(data: &[u8]) -> Result<Self> {
+    /// Deserialize BAM file from compressed bytes (BGZF format)
+    pub fn from_bytes(compressed_data: &[u8]) -> Result<Self> {
+        // FIXED: Decompress BGZF data first before parsing
+        use flate2::read::GzDecoder;
+        use std::io::Read;
+        
+        let mut decoder = GzDecoder::new(compressed_data);
+        let mut data = Vec::new();
+        decoder.read_to_end(&mut data)
+            .map_err(|e| crate::error::Error::Custom(format!("BGZF decompression failed: {}", e)))?;
+        
         let mut cursor = 0;
 
         // Verify magic bytes

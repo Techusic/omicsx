@@ -82,8 +82,19 @@ impl KarlinParameters {
     }
 
     /// Calculate E-value from bit score and database size
+    /// 
+    /// Mathematical derivation:
+    /// - Bit score: S' = (λS - ln K) / ln(2)
+    /// - Solving for raw score S: S = (S' * ln(2) + ln(K)) / λ
+    /// - Karlin-Altschul: E = K * N * exp(-λS)
+    /// - Substituting: E = K * N * exp(-λ * ((S' * ln(2) + ln(K)) / λ))
+    ///              = K * N * exp(-(S' * ln(2) + ln(K)))
+    ///              = K * N * 2^(-S') * exp(-ln(K))
+    ///              = K * N * 2^(-S') / K
+    ///              = N * 2^(-S')
     pub fn evalue(&self, bit_score: f64, db_size: u64) -> f64 {
-        let raw_score = bit_score / self.lambda;
+        // FIXED: Correct bit-to-raw score conversion accounting for ln(2) and ln(K)
+        let raw_score = (bit_score * std::f64::consts::LN_2 + self.logk) / self.lambda;
         self.k * (db_size as f64) * (-self.lambda * raw_score).exp()
     }
 

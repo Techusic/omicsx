@@ -161,9 +161,10 @@ impl SmithWatermanCudaKernel {
               mul.lo.u32 %r8, %r4, %r5;     // subject_idx base
               add.u32 %r9, %r8, %r2;        // subject_idx = blockIdx.y*16 + threadIdx.y
               
-              // Bounds check
-              setp.lt.u32 %p1, %r7, {} ;    // query_idx < query_len
-              setp.lt.u32 %p2, %r9, {} ;    // subject_idx < subject_len
+              // Bounds check - FIXED: DP matrix requires (m+1)×(n+1) so indices go from 0 to m and 0 to n INCLUSIVE
+              // Changed from setp.lt (strictly <) to setp.le (<= to include final row/column)
+              setp.le.u32 %p1, %r7, {} ;    // query_idx <= query_len (includes final row at index m)
+              setp.le.u32 %p2, %r9, {} ;    // subject_idx <= subject_len (includes final col at index n)
               @(!%p1) bra skip_compute;
               @(!%p2) bra skip_compute;
               

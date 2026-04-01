@@ -867,10 +867,11 @@ impl NeedlemanWunsch {
         let seq1_bytes = seq1.sequence();
         let seq2_bytes = seq2.sequence();
 
-        // Traceback
-        let (aligned1, aligned2) = self.traceback_nw(h, seq1_bytes, seq2_bytes)?;
+        // OPTIMIZED: Use traceback that generates CIGAR inline (like SmithWaterman)
+        // instead of building strings then re-scanning for CIGAR operations
+        let (aligned1, aligned2, cigar) = self.traceback_nw_with_cigar(h, seq1_bytes, seq2_bytes)?;
 
-        let mut result = AlignmentResult {
+        let result = AlignmentResult {
             score,
             aligned_seq1: aligned1,
             aligned_seq2: aligned2,
@@ -878,12 +879,9 @@ impl NeedlemanWunsch {
             start_pos2: 0,
             end_pos1: m,
             end_pos2: n,
-            cigar: String::from(""),
+            cigar,  // Already generated during traceback - no second pass needed!
             soft_clips: (0, 0),
         };
-
-        // Generate CIGAR string from alignment
-        result.generate_cigar();
 
         Ok(result)
     }
@@ -932,6 +930,93 @@ impl NeedlemanWunsch {
         }
 
         Ok((aligned1.chars().rev().collect(), aligned2.chars().rev().collect()))
+    }
+
+    /// Optimized traceback that generates CIGAR during alignment (eliminates redundant iteration)
+    /// Returns: (aligned_seq1, aligned_seq2, cigar_string)
+    /// This avoids the two-pass approach of building strings then re-scanning for CIGAR operations
+    fn traceback_nw_with_cigar(
+        &self,
+        h: &[Vec<i32>],
+        seq1: &[AminoAcid],
+        seq2: &[AminoAcid],
+    ) -> Result<(String, String, String)> {
+        let mut i = seq1.len();
+        let mut j = seq2.len();
+        let mut aligned1 = String::new();
+        let mut aligned2 = String::new();
+        let mut cigar_ops = Vec::new(); // Cache CIGAR operations during traceback
+
+        while i > 0 || j > 0 {
+            if i > 0 && j > 0 {
+                let match_score = self.matrix.score(seq1[i - 1], seq2[j - 1]);
+                let diagonal = h[i - 1][j - 1] + match_score;
+                let up = h[i - 1][j] + self.penalty.extend;
+                let _left = h[i][j - 1] + self.penalty.extend;
+
+                if h[i][j] == diagonal {
+                    aligned1.push(seq1[i - 1].to_code());
+                    aligned2.push(seq2[j - 1].to_code());
+                    
+                    // Cache operation inline during traceback
+                    let c1 = seq1[i - 1].to_code();
+                    let c2 = seq2[j - 1].to_code();
+                    let op = if c1 == c2 {
+                        CigarOp::SeqMatch
+                    } else {
+                        CigarOp::SeqMismatch
+                    };
+                    cigar_ops.push((op, 1u32));
+                    i -= 1;
+                    j -= 1;
+                    continue;
+                } else if h[i][j] == up {
+                    aligned1.push(seq1[i - 1].to_code());
+                    aligned2.push('-');
+                    cigar_ops.push((CigarOp::Insertion, 1));
+                    i -= 1;
+                    continue;
+                }
+            }
+
+            if j > 0 {
+                aligned1.push('-');
+                aligned2.push(seq2[j - 1].to_code());
+                cigar_ops.push((CigarOp::Deletion, 1));
+                j -= 1;
+            } else if i > 0 {
+                aligned1.push(seq1[i - 1].to_code());
+                aligned2.push('-');
+                cigar_ops.push((CigarOp::Insertion, 1));
+                i -= 1;
+            }
+        }
+
+        // Reverse collected data (built in reverse during traceback)
+        let aligned1_str: String = aligned1.chars().rev().collect();
+        let aligned2_str: String = aligned2.chars().rev().collect();
+        cigar_ops.reverse();
+
+        // Generate CIGAR string from cached operations (coalesce consecutive same ops)
+        let mut cigar = Cigar::new();
+        if !cigar_ops.is_empty() {
+            let mut current_op = cigar_ops[0].0;
+            let mut current_len = cigar_ops[0].1;
+            
+            for &(op, len) in &cigar_ops[1..] {
+                if op == current_op {
+                    current_len += len;
+                } else {
+                    cigar.push(current_len, current_op);
+                    current_op = op;
+                    current_len = len;
+                }
+            }
+            cigar.push(current_len, current_op);
+        }
+
+        let cigar_str = cigar.to_string();
+        Ok((aligned1_str, aligned2_str, cigar_str))
     }
 }
 
