@@ -1,8 +1,8 @@
 # OMICS-X: MASTER BUG REGISTRY
 **Date**: April 1, 2026  
-**Last Updated**: Complete audit cycle  
-**Total Bugs Found**: 21  
-**Status**: 3 FIXED ✅ | 18 UNFIXED ⏳
+**Last Updated**: April 16, 2026  
+**Total Bugs Found**: 22  
+**Status**: 3 FIXED ✅ | 19 UNFIXED ⏳
 
 ---
 
@@ -15,11 +15,15 @@
 - BAM integer overflow causes data loss
 - CUDA shared memory limits (already fixed ✅)
 
+🟠 **10 HIGH** severity bugs affecting GPU, HMM, concurrency, boundaries
+
+🟡 **8 MEDIUM** severity bugs in CIGAR, parsing, error handling
+
 The codebase has **systemic correctness issues** requiring immediate high-priority fixes across core algorithms and I/O.
 
 ---
 
-## Master Bug Registry - All 21 Bugs
+## Master Bug Registry - All 22 Bugs
 
 ### ✅ FIXED (3)
 
@@ -29,7 +33,7 @@ The codebase has **systemic correctness issues** requiring immediate high-priori
 | 7 | Hardcoded Karlin-Altschul | HIGH | hmm.rs | ✅ FIXED | 2026-04-01 |
 | 1 | NEON Excessive Allocations | MEDIUM | simd_viterbi.rs | ✅ FIXED | 2026-04-01 |
 
-### ⏳ TODO (18)
+### ⏳ TODO (19)
 
 | # | Bug | Severity | File | Category | Est. LOC |
 |---|-----|----------|------|----------|---------|
@@ -51,6 +55,7 @@ The codebase has **systemic correctness issues** requiring immediate high-priori
 | 19 | AA Code Wraparound | MEDIUM | hmm.rs | Logic | 40-50 |
 | 20 | expect() Panic on CIGAR | MEDIUM | mod.rs | Error | 20-30 |
 | 21 | Race Condition in Future | MEDIUM | hmm.rs | Concurrency | 30-40 |
+| 22 | CUDA Hardcoded Alphabet Size | MEDIUM | cuda_kernels_rtc.rs | Architecture | 80-100 |
 
 ---
 
@@ -63,12 +68,12 @@ The codebase has **systemic correctness issues** requiring immediate high-priori
 - Bug #11 ⏳ TODO - BAM overflow (data loss)
 - Bug #12 ⏳ TODO - GPU memory leak (device exhaustion)
 
-### 🟠 HIGH (10 bugs)
+### 🟠 HIGH (11 bugs)
 **Define**: Algorithm incorrectness, crashes, dropped results
 - Bugs #2, #3, #5, #9 - GPU acceleration + algorithm defects (original audit)
 - Bugs #13-17 - Concurrency, bounds, uninitialized memory (new audit)
 
-### 🟡 MEDIUM (7 bugs)
+### 🟡 MEDIUM (8 bugs)
 **Define**: Edge cases, corner cases, robustness
 - Bugs #1, #4, #8 - Performance + robustness (original audit)
 - Bugs #18-21 - Off-by-one, parsing, error handling (new audit)
@@ -107,7 +112,7 @@ The codebase has **systemic correctness issues** requiring immediate high-priori
   - Handle poisoned mutexes gracefully
   - Prevents cascade failures
 
-### PHASE 2: HIGH PRIORITY FIXES (2-3 hours)
+### PHASE 2: HIGH PRIORITY FIXES (3 hours)
 
 - [ ] **Bug #15** - String Parsing DoS (50-70 LOC)
   - Defensive parsing with proper error handling
@@ -120,6 +125,11 @@ The codebase has **systemic correctness issues** requiring immediate high-priori
 - [ ] **Bug #17** - Bounds Checking (50-70 LOC)
   - Add validation before array access
   - Prevents panics
+
+- [ ] **Bug #22** - CUDA Hardcoded Alphabet Size (80-100 LOC)
+  - Parameterize alphabet_size instead of hardcoding 20/24
+  - Support multi-alphabet (DNA, RNA, custom codes)
+  - Make emissions/scoring matrix sizes flexible
 
 - [ ] **Bug #2, #3** - GPU Kernel Launches (120-150 LOC)
   - Implement actual GPU computation
@@ -239,15 +249,121 @@ fn test_hm_transitions_indices_correct() {
 
 ## Estimated Effort Summary
 
-| Phase | Bugs | Total LOC | Estimated Time |
-|-------|------|-----------|-----------------|
+| Phase | Bugs | Total LOC | Est. Time |
+|-------|------|-----------|------------|
 | Phase 0 | 2 | 41-51 | 0.5 hours |
 | Phase 1 | 5 | 220-280 | 1.5 hours |
-| Phase 2 | 5 | 380-520 | 2.5 hours |
+| Phase 2 | 6 | 460-620 | 3 hours |
 | Phase 3 | 6 | 270-380 | 2 hours |
-| **TOTAL** | **18** | **911-1231** | **6.5 hours** |
+| **TOTAL** | **19** | **991-1331** | **7 hours** |
 
 Combined with already-fixed bugs: **12-16 hours total project work**
+
+---
+
+## Bug #22: CUDA Hardcoded Alphabet Size (NEW)
+
+**Severity**: 🟡 MEDIUM-HIGH  
+**Files**: `cuda_kernels_rtc.rs` (lines 26-30, 153-169) + `simd_viterbi.rs` (lines 204-207)  
+**Category**: Architecture - Hardcoded Constants  
+
+**Problem**:
+```rust
+// In simd_viterbi.rs (line 204-207)
+let mut emis_matrix = vec![f64::NEG_INFINITY; 20 * m];  // HARDCODED 20
+for aa in 0..20.min(state.emissions.len()) {  // Loop assumes 20 amino acids
+    emis_matrix[aa * m + state_idx] = state.emissions[aa];
+}
+
+// In cuda_kernels_rtc.rs (line 26, 153-169)
+__shared__ int smatrix[24 * 24];  // Hardcoded for 24 codes
+// ...
+float* emis = &s_mem[m * 3];     // Assumes 20*m emission matrix
+```
+
+**Impact**:
+- ✗ Only supports standard 20 amino acids (+ 4 extended codes)
+- ✗ Cannot handle DNA (4 codes), RNA (4 codes), or custom alphabets
+- ✗ Emis_matrix allocation fails for different alphabet sizes
+- ✗ SIMD/GPU code doesn't adapt to actual alphabet size
+- **Limits library to protein-only use case**
+
+**When It Breaks**:
+```rust
+// DNA sequences won't work properly
+let dna_hmm = HmmerModel::with_alphabet("DNA", 4);  // 4 codes
+decoder.decode(dna_sequence, &dna_hmm);             // ✗ Fails or corrupts
+// Emission matrix allocated for 20, but DNA needs only 4
+```
+
+**Root Cause**: Copy-paste from implementation for proteins, never parameterized
+
+**Fix Strategy**:
+
+1. Add alphabet size to HmmerModel struct
+2. Pass alphabet_size to CUDA kernels as parameter
+3. Dynamic allocation based on alphabet
+
+```rust
+// Option A: Add to HmmerModel
+pub struct HmmerModel {
+    // ... existing fields ...
+    pub alphabet_size: usize,  // NEW: 4 for DNA, 20 for protein
+}
+
+// Option B: Parameterize CUDA kernel
+pub const VITERBI_HMM_KERNEL: &str = r#"
+extern "C" __global__ void viterbi_forward_kernel(
+    const unsigned char* sequence,
+    float* dp_m,
+    float* dp_i,
+    float* dp_d,
+    const float* transitions,
+    const float* emissions,
+    int n,
+    int m,
+    int alphabet_size,    // NEW parameter
+    int emis_mem_per_aa   // NEW: alphabet_size * m
+) {
+    int emis_total = emis_mem_per_aa;  // Instead of hardcoded 20*m
+    // ... rest of kernel ...
+}
+"#;
+
+// Option C: Calculate at runtime
+let alphabet_size = model.alphabet_size;  // Query from model
+let emis_matrix = vec![f64::NEG_INFINITY; alphabet_size * m];
+```
+
+**Estimated LOC**: 80-100 (affects CUDA kernel definition + GPU dispatcher + simd_viterbi.rs)
+
+**Tests Required**:
+```rust
+#[test]
+fn test_dna_alphabet_support() {
+    let dna_hmm = HmmerModel::with_alphabet(ProfileType::DNA);
+    assert_eq!(dna_hmm.alphabet_size, 4);
+    
+    let sequence = b"ACGTACGT";
+    let result = decoder.decode(sequence, &dna_hmm);
+    assert!(result.is_ok());
+}
+```
+
+---
+
+## Additional Verified Issues (5 Audited Components)
+
+**Audit on April 16, 2026 verified these 5 components**:
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| Parser (* infinity) | ✅ NO BUG | Already correct: handles "*" for -inf (lines 303-310) |
+| Bridge conversion | ✅ NO BUG | Bijective mapping, no off-by-one (lines 79-117) |
+| SIMD alignment | ✅ NO BUG | Proper use of unaligned loads (_mm256_loadu_*) |
+| CLI unwrap() | ✅ NO BUG | Zero panics: proper error handling throughout |
+
+**Result**: 1 new bug found, 4 components verified as correct.
 
 ---
 
@@ -278,12 +394,12 @@ Complete all Medium-severity bugs in Phase 3
 
 - **v1.1.0-critical-fixes** - Current (Bugs #1, #6, #7)
 - **v1.1.1-correctness** - Phase 0-1 (Bugs #10-14, #18)
-- **v1.1.2-stability** - Phase 2 (Bugs #2, #3, #5, #9, #15-17)
+- **v1.1.2-stability** - Phase 2 (Bugs #2, #3, #5, #9, #15-17, #22)
 - **v1.2.0** - Phase 3 complete (All bugs fixed + new features)
 
 ---
 
-**Project Status**: ⚠️ **CRITICAL** - Immediate action required
+**Project Status**: ⚠️ **CRITICAL** - Immediate action required (19 bugs unfixed)
 
 **Recommendation**: Halt feature development, prioritize bug fixes for correctness and stability.
 
