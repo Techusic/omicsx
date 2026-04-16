@@ -93,7 +93,7 @@ impl BamFile {
             write_le_i32(&mut uncompressed, (name_bytes.len() + 1) as i32);
             uncompressed.extend_from_slice(name_bytes);
             uncompressed.push(0); // null terminator
-            write_le_i32(&mut uncompressed, *length as i32);
+            write_le_u32(&mut uncompressed, *length);
         }
 
         // Write records
@@ -159,7 +159,7 @@ impl BamFile {
             let name = String::from_utf8(data[cursor..cursor + name_len - 1].to_vec())
                 .map_err(|e| crate::error::Error::Custom(format!("Invalid UTF-8 in reference name: {}", e)))?;
             cursor += name_len;
-            let length = read_le_i32(&data, &mut cursor)? as u32;
+            let length = read_le_u32(&data, &mut cursor)?;
             references.push((name, length));
         }
 
