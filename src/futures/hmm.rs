@@ -129,6 +129,20 @@ fn get_transition_index(from_type: StateType, to_type: StateType) -> Option<usiz
     }
 }
 
+/// Get safe amino acid index with bounds checking
+/// 
+/// Validates that amino acid codes are within valid range (0-23) instead of
+/// silently wrapping. Returns index for valid codes, clamped to 23 (X = unknown).
+/// 
+/// This prevents Bug #19 where invalid codes like 255 would wrap to invalid emissions.
+#[inline]
+fn get_safe_aa_index(byte: u8) -> usize {
+    let idx = byte as usize;
+    // Clamp to valid range 0-23 (20 standard AAs + 4 extended codes)
+    // Any invalid code becomes 23 (X = unknown)
+    if idx < 24 { idx } else { 23 }
+}
+
 impl ProfileHmm {
     pub fn from_msa(alignment: &[Vec<char>]) -> Result<Self, HmmError> {
         if alignment.is_empty() || alignment[0].is_empty() {
@@ -247,7 +261,7 @@ impl ProfileHmm {
         dp[0][0] = 0.0; // Start at begin state
 
         for i in 1..=n {
-            let aa_idx = (sequence[i - 1] as usize) % 24;
+            let aa_idx = get_safe_aa_index(sequence[i - 1]);
 
             for j in 0..m {
                 if self.states[j].state_type == StateType::Begin {
@@ -290,7 +304,7 @@ impl ProfileHmm {
         dp[0][0] = 0.0;
 
         for i in 1..=n {
-            let aa_idx = (sequence[i - 1] as usize) % 24;
+            let aa_idx = get_safe_aa_index(sequence[i - 1]);
 
             for j in 0..m {
                 if self.states[j].state_type == StateType::Begin {
@@ -449,7 +463,7 @@ impl ProfileHmm {
         alpha[0][0] = 0.0; // Start at begin state (log prob = 0)
 
         for i in 1..=n {
-            let aa_idx = (sequence[i - 1] as usize) % 24;
+            let aa_idx = get_safe_aa_index(sequence[i - 1]);
 
             for j in 0..m {
                 if self.states[j].state_type == StateType::Begin {
@@ -500,7 +514,7 @@ impl ProfileHmm {
         }
 
         for i in (0..n).rev() {
-            let aa_idx = (sequence[i] as usize) % 24;
+            let aa_idx = get_safe_aa_index(sequence[i]);
 
             for j in 0..m {
                 let mut max_val = f32::NEG_INFINITY;
@@ -544,8 +558,7 @@ impl ProfileHmm {
 
         // Compute gamma (state posterior probabilities)
         for i in 0..n {
-            let aa_idx = (sequence[i] as usize) % 24;
-
+        let aa_idx = get_safe_aa_index(sequence[i]);
             for j in 0..m {
                 if alpha[i][j].is_finite() && beta[i][j].is_finite() {
                     let gamma = (alpha[i][j] + beta[i][j]).exp();
@@ -658,7 +671,7 @@ pub fn backward_algorithm(hmm: &ProfileHmm, sequence: &[u8]) -> Result<Vec<Vec<f
 
     // Fill table backward
     for i in (0..n).rev() {
-        let aa_idx = (sequence[i] as usize) % 24;
+        let aa_idx = get_safe_aa_index(sequence[i]);
 
         for j in 0..m {
             // Sum over next states
@@ -694,7 +707,7 @@ pub fn forward_backward(hmm: &ProfileHmm, sequence: &[u8]) -> Result<Vec<Vec<f32
     forward[0][0] = 0.0;
 
     for i in 1..=n {
-        let aa_idx = (sequence[i - 1] as usize) % 24;
+        let aa_idx = get_safe_aa_index(sequence[i - 1]);
 
         for j in 0..m {
             for prev_j in 0..j {

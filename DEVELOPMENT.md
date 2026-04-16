@@ -4,7 +4,7 @@
 **Email**: raghavmkota@gmail.com  
 **Repository**: https://github.com/techusic/omicsx
 
-Complete development documentation for OMICS-X v1.1.0 (production-ready bioinformatics toolkit with SIMD, GPU acceleration, multi-format HMM parsing, and distributed computing).
+Complete development documentation for OMICS-X v1.0.2 (production-ready bioinformatics toolkit with SIMD, GPU acceleration, multi-format HMM parsing, and distributed computing).
 
 ## Quick Start
 
@@ -14,7 +14,7 @@ git clone https://github.com/techusic/omicsx.git
 cd omicsx
 cargo build --release
 
-# Run full test suite (267 tests)
+# Run full test suite (275 tests)
 cargo test --lib
 
 # Run examples (all 10)
@@ -60,7 +60,7 @@ cargo build --release --features "simd,batching"
 
 ## Testing
 
-### Run Test Suite (180/180 tests passing)
+### Run Test Suite (275/275 tests passing)
 
 ```bash
 # All unit tests

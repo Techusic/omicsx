@@ -14,19 +14,19 @@
 //! Each tile includes "halo" rows/columns from neighboring tiles:
 //! ```
 //! Tile Layout (with halo):
-//! ┌─────────────────────┐
-//! │ Halo (top)    (1 row)│
-//! ├─────────────────────┤
-//! │ Halo  Main tile   Halo │
-//! │(L)   16×16       (R)  │
-//! ├─────────────────────┤
-//! │ Halo (bottom) (1 row)  │
-//! └─────────────────────┘
-//! Total: 18×18 with 16×16 core
+//! +---------------------+
+//! | Halo (top)    (1 row)|
+//! +---------------------+
+//! | Halo  Main tile   Halo |
+//! |(L)   16x16       (R)  |
+//! +---------------------+
+//! | Halo (bottom) (1 row)  |
+//! +---------------------+
+//! Total: 18x18 with 16x16 core
 //! ```
 //!
 //! ## Performance
-//! - Memory overhead: 12.5% (18×18 vs 16×16)
+//! - Memory overhead: 12.5% (18x18 vs 16x16)
 //! - Eliminates boundary errors (infinite penalty or zero)
 //! - Enables larger batch sizes for tiled execution
 
@@ -44,7 +44,7 @@ pub struct HaloConfig {
 }
 
 impl HaloConfig {
-    /// Create default 16×16 tiles with 1-cell halo
+    /// Create default 16x16 tiles with 1-cell halo
     pub fn default() -> Self {
         HaloConfig {
             tile_width: 16,

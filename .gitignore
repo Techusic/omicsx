@@ -81,6 +81,10 @@ ENHANCEMENT_ROADMAP.md
 ROADMAP_ENHANCEMENTS.md
 SESSION_SUMMARY.md
 
+# Release notes archives (keep current RELEASE_NOTES_v1.0.2.md only)
+RELEASE_NOTES_v*.md
+!RELEASE_NOTES_v1.0.2.md
+
 # Generated documentation
 /doc/
 docs/_build/

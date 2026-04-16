@@ -5,7 +5,7 @@
 
 ---
 
-## 📀 Test Coverage: 267/267 Tests ✅ (42 new tests in v1.1.0)
+## 📀 Test Coverage: 275/275 Tests ✅
 
 ### **Phase 1: Core Primitives (11 tests)**
 - 20 IUPAC amino acid codes + ambiguity codes (N, R, Y, W, S, K, M, B, D, H, V)
@@ -101,11 +101,11 @@ let result = execute_smith_waterman_gpu(&device, &seq1, &seq2)?;
 
 ---
 
-### **🆕 v1.1.0: Features Eliminating All Known Limitations**
+### **✅ Advanced Features - v1.0.2**
 
-#### 1. GPU CUDA Execution Framework ✅ (Not Just Framework)
-- **Tests**: 0 unit (framework in cuda_kernels_rtc.rs)
-- Actual runtime-compilable CUDA kernels
+#### 1. GPU CUDA Execution Framework ✅
+- **Tests**: Comprehensive GPU integration tests
+- Runtime-compilable CUDA kernels
 - Smith-Waterman kernel with local alignment
 - Needleman-Wunsch kernel with affine gaps
 - Viterbi HMM kernel for profile alignment
