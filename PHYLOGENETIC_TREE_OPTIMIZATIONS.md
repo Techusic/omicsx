@@ -354,5 +354,5 @@ Output: Parsimony cost = 14 (actual step count, not branch count)
 ---
 
 **Status**: ✅ READY FOR PRODUCTION  
-**Recommendation**: Deploy in v1.1.1 release  
+**Recommendation**: Deploy in v1.0.2 release  
 **Next Steps**: Consider GPU acceleration for large-scale tree inference (1000+ taxa)

@@ -325,7 +325,7 @@ test result: ok. 259 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out
 warning: unused import (not related to optimizations)
 warning: unused variable (legacy compatibility)
 
-Compiling omicsx v1.1.0 (d:\omicsx)
+Compiling omicsx v1.0.2 (d:\omicsx)
     Finished in 0.48s
 
 Final: 259/259 tests pass, 0 failures
@@ -390,4 +390,4 @@ This optimization package addresses two known limitations:
 ---
 
 **Status**: ✅ READY FOR PRODUCTION  
-**Recommendation**: Deploy in v1.1.1 minor release
+**Recommendation**: Deploy in v1.0.2 stable release

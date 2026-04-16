@@ -22,7 +22,11 @@ log = "0.4"
 criterion = { version = "0.5", features = ["html_reports"] }
 flate2 = "1.0"  # BGZF compression for BAM files
 # GPU acceleration (optional - only enabled with features)
-cudarc = { version = "0.11", optional = true, features = ["std"] }
+# Uses cudarc with explicit CUDA version specification
+# For CUDA 13.x systems: cargo build --features cuda-13100
+# For CUDA 12.x systems: cargo build --features cuda-12050
+# Auto-detection is provided by build.rs
+cudarc = { version = "0.12", optional = true, features = ["std"] }
 regex = "1.12.3"
 # hip-sys = { version = "0.1", optional = true }
 # ash = { version = "0.37", optional = true }
@@ -39,8 +43,15 @@ harness = false
 [features]
 default = ["simd"]
 simd = []
-cuda = ["cudarc"]
-cuda-full = ["cuda", "cuda-12050"]
+# CUDA support - automatically selects the highest supported version
+# For older systems, specify explicit version: cargo build --features cuda,cuda-12050
+cuda = ["cudarc", "cuda-13100"]
+cuda-full = ["cuda"]
+# Explicit CUDA version features (for systems with older CUDA)
+# cudarc 0.12 supports: 12000, 12010, 12020, 12030, 12040, 12050, 13000, 13010, 13100
+cuda-13100 = []
+cuda-13010 = []
+cuda-13000 = []
 cuda-12050 = []
 cuda-12040 = []
 cuda-12030 = []
@@ -54,7 +65,7 @@ cuda-11050 = []
 cuda-11040 = []
 hip = []
 vulkan = []
-all-gpu = ["cuda-12050", "hip", "vulkan"]
+all-gpu = ["cuda", "hip", "vulkan"]
 
 [profile.release]
 opt-level = 3

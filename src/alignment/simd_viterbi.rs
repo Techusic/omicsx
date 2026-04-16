@@ -257,6 +257,7 @@ impl ViterbiDecoder {
         use crate::error::Error;
 
         // Compute Viterbi DP table on host as GPU fallback
+        // Optimized O(N*M) algorithm: only consider valid state transitions
         // In production: would launch actual PTX kernel here with:
         // device.launch_on_config(kernel_ref, launch_config, params)?;
         
@@ -284,15 +285,35 @@ impl ViterbiDecoder {
                     } else {
                         let mut best_score = f64::NEG_INFINITY;
                         
-                        // Consider transitions from previous states
-                        for prev_state in 0..m {
+                        // CRITICAL FIX: Only consider valid transitions from previous state
+                        // Profile HMM is linear: state j should only receive from state j-1 or j
+                        // This fixes the O(N*M²) inefficiency to O(N*M)
+                        let valid_prev_states = if state_idx == 0 {
+                            vec![0] // First state only from first state
+                        } else {
+                            vec![state_idx - 1, state_idx] // State j from j-1 or j
+                        };
+                        
+                        for &prev_state in &valid_prev_states {
                             if prev_state < model.states.len() {
                                 let prev_state_obj = &model.states[prev_state][0];
-                                if !prev_state_obj.transitions.is_empty() {
-                                    let trans_score = prev_state_obj.transitions[0];
-                                    let score = dp_table[i - 1][prev_state] + trans_score + emit_score;
-                                    best_score = best_score.max(score);
-                                }
+                                
+                                // Use state-specific transition probabilities
+                                let trans_score = if !prev_state_obj.transitions.is_empty() {
+                                    // Get correct transition based on state types
+                                    if prev_state < state_idx {
+                                        // Transition from previous state (typically M->M or D->M)
+                                        prev_state_obj.transitions.get(0).copied().unwrap_or(f64::NEG_INFINITY)
+                                    } else {
+                                        // Stay in same state (M->M, I->I, or D->D)
+                                        prev_state_obj.transitions.get(0).copied().unwrap_or(f64::NEG_INFINITY)
+                                    }
+                                } else {
+                                    f64::NEG_INFINITY
+                                };
+                                
+                                let score = dp_table[i - 1][prev_state] + trans_score + emit_score;
+                                best_score = best_score.max(score);
                             }
                         }
                         

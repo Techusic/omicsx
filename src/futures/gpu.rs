@@ -639,17 +639,24 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // Requires CUDA feature compilation
     fn test_smith_waterman_gpu_kernel() {
         let device = GpuDevice::cuda(0).expect("Should create device");
         
         let seq1 = b"ACGT";
         let seq2 = b"AGGT";
         
-        let result = execute_smith_waterman_gpu(&device, seq1, seq2)
-            .expect("Kernel should execute");
-        
-        assert!(!result.is_empty(), "Should return results");
+        match execute_smith_waterman_gpu(&device, seq1, seq2) {
+            Ok(result) => {
+                assert!(!result.is_empty(), "Should return results");
+            }
+            Err(e) if e.to_string().contains("CUDA support not compiled") => {
+                // Skip test if CUDA support not compiled
+                eprintln!("Skipping test: CUDA support not compiled");
+            }
+            Err(e) => {
+                panic!("Unexpected error: {}", e);
+            }
+        }
     }
 
     #[test]
@@ -657,21 +664,37 @@ mod tests {
         let device = GpuDevice::cuda(0).expect("Should create device");
         
         let result = execute_smith_waterman_gpu(&device, &[], b"ACGT");
-        assert!(result.is_err(), "Should reject empty sequences");
+        match result {
+            Err(e) if e.to_string().contains("Empty sequences") => {
+                // Expected error
+            }
+            Err(e) if e.to_string().contains("CUDA support not compiled") => {
+                // Skip if CUDA unavailable
+                eprintln!("Skipping test: CUDA support not compiled");
+            }
+            _ => assert!(result.is_err(), "Should reject empty sequences"),
+        }
     }
 
     #[test]
-    #[ignore] // Requires CUDA feature compilation
     fn test_needleman_wunsch_gpu_kernel() {
         let device = GpuDevice::cuda(0).expect("Should create device");
         
         let seq1 = b"ACGT";
         let seq2 = b"AGGT";
         
-        let result = execute_needleman_wunsch_gpu(&device, seq1, seq2)
-            .expect("Kernel should execute");
-        
-        assert!(!result.is_empty(), "Should return results");
+        match execute_needleman_wunsch_gpu(&device, seq1, seq2) {
+            Ok(result) => {
+                assert!(!result.is_empty(), "Should return results");
+            }
+            Err(e) if e.to_string().contains("CUDA support not compiled") => {
+                // Skip test if CUDA support not compiled
+                eprintln!("Skipping test: CUDA support not compiled");
+            }
+            Err(e) => {
+                panic!("Unexpected error: {}", e);
+            }
+        }
     }
 
     #[test]

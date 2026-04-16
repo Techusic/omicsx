@@ -98,7 +98,7 @@ impl GpuRuntime {
     where
         T: Default + Clone + std::marker::Send,
     {
-        let _byte_size = size * std::mem::size_of::<T>();
+        let byte_size = size * std::mem::size_of::<T>();
 
         #[cfg(feature = "cuda")]
         {
@@ -126,7 +126,7 @@ impl GpuRuntime {
     }
 
     /// Copy data to device
-    pub fn copy_to_device<T>(&self, _data: &[T]) -> Result<GpuBuffer<T>>
+    pub fn copy_to_device<T>(&self, data: &[T]) -> Result<GpuBuffer<T>>
     where
         T: Default + Clone + std::marker::Send,
     {
@@ -148,7 +148,7 @@ impl GpuRuntime {
     }
 
     /// Copy data from device to host
-    pub fn copy_from_device<T>(&self, _buf: &GpuBuffer<T>) -> Result<Vec<T>>
+    pub fn copy_from_device<T>(&self, buf: &GpuBuffer<T>) -> Result<Vec<T>>
     where
         T: Default + Clone + std::marker::Send,
     {

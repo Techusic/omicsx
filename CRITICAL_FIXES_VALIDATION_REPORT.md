@@ -286,7 +286,7 @@ Test Statistics:
 3. ✅ Communicate changes to users/stakeholders
 
 ### Version Tagging
-- **Version**: v1.1.0-critical-fixes
+- **Version**: v1.0.2
 - **Tag**: `fix/critical-audit-2026-03-29`
 - **Breaking Changes**: None (fixes only)
 

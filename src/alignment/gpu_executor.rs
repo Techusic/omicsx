@@ -2,10 +2,18 @@
 /// Uses cudarc for device management and NVRTC for JIT compilation
 
 use crate::error::Result;
+use crate::protein::Protein;
+use crate::protein::AminoAcid;
+use crate::scoring::{ScoringMatrix, AffinePenalty};
+use crate::alignment::AlignmentResult;
 
 #[cfg(feature = "cuda")]
 pub mod gpu_executor {
     use crate::error::Result;
+    use crate::protein::Protein;
+    use crate::protein::AminoAcid;
+    use crate::scoring::{ScoringMatrix, AffinePenalty};
+    use crate::alignment::AlignmentResult;
     use cudarc::driver::{CudaDevice, LaunchAsync, DeviceRepr};
     use std::sync::Arc;
 

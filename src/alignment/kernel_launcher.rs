@@ -53,11 +53,11 @@ impl SmithWatermanKernel {
     #[cfg(feature = "cuda")]
     pub fn launch(
         device_id: u32,
-        query: &[u8],
+        query: &[u8],  
         subject: &[u8],
-        _matrix: &[i32],
-        _gap_open: i32,
-        _gap_extend: i32,
+        matrix: &[i32],
+        gap_open: i32,
+        gap_extend: i32,
     ) -> Result<Vec<i32>> {
         use std::time::Instant;
 
