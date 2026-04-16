@@ -116,14 +116,16 @@ pub mod gpu_executor {
             let m_len = q_indices.len();
             let n_len = s_indices.len();
 
-            // Skip if sequences too small for GPU (CPU is faster)
+            // Check sequence sizes BEFORE allocating GPU memory
+            // This prevents GPU memory leaks on early returns
             if m_len < 100 || n_len < 100 {
                 return Err(crate::error::Error::AlignmentError(
                     "Sequences too small for GPU execution".to_string()
                 ));
             }
 
-            // Allocate GPU memory
+            // Only allocate GPU memory if sequences pass validation
+            // GPU memory will be freed when DeviceBuffer is dropped at function end
             let d_seq1 = self.device.alloc_zeros::<u8>(m_len)
                 .map_err(|e| crate::error::Error::AlignmentError(
                     format!("GPU allocation failed: {}", e)
@@ -153,6 +155,8 @@ pub mod gpu_executor {
 
             // TODO: Get scoring matrix from device or copy it
             // For now, return error as this needs full integration
+            // NOTE: GPU memory (d_seq1, d_seq2, d_matrix, d_traceback) will be
+            // automatically freed when these DeviceBuffer objects are dropped
             Err(crate::error::Error::AlignmentError(
                 "GPU Smith-Waterman execution framework ready (integration in progress)".to_string()
             ))
